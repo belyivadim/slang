@@ -2,7 +2,7 @@
 #define __SLANG_TOKEN_HPP__
 
 #include <string>
-#include <variant>
+#include "Object.hpp"
 
 namespace slang {
 
@@ -28,10 +28,7 @@ enum TokenType {
 
 class Token {
 public:
-
-  using Literal = std::variant<double, bool, std::string, void *>;
-
-  Token(TokenType type, const std::string& lexeme, Literal literal, int line)
+  Token(TokenType type, const std::string& lexeme, Object literal, int line)
     : m_type(type), m_lexeme(lexeme), m_literal(literal), m_line(line) {}
 
   Token(Token &&) = default;
@@ -44,7 +41,7 @@ public:
     return std::to_string(m_type) + " " + m_lexeme + " " + literal_to_string(m_literal);
   }
 
-  static std::string literal_to_string(const Token::Literal& literal) {
+  static std::string literal_to_string(const Object& literal) {
     if (const double * pval = std::get_if<double>(&literal)) {
       return std::to_string(*pval);
     } else if (const bool * pval = std::get_if<bool>(&literal)) {
@@ -58,7 +55,7 @@ public:
 
   const TokenType m_type;
   const std::string m_lexeme;
-  const Literal m_literal;
+  const Object m_literal;
   const std::size_t m_line;
   
 };

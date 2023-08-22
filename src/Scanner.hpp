@@ -42,7 +42,7 @@ private:
   void process_number();
   void process_identifier();
   char advance();
-  void add_token(TokenType type, Token::Literal literal = nullptr);
+  void add_token(TokenType type, Object literal = nullptr);
 
 };
 

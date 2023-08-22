@@ -8,6 +8,7 @@
 #include "Scanner.hpp"
 #include "Parser.hpp"
 #include "AstPrinter.hpp"
+#include "Interpreter.hpp"
 
 namespace slang {
 
@@ -59,9 +60,17 @@ private:
       return 65;
     }
 
-
     AstPrinter printer;
     std::cout << printer.print(*expr) << std::endl;
+
+    Interpreter interpreter;
+    auto res = interpreter.evaluate(*expr);
+
+    if (std::holds_alternative<double>(res)) {
+      std::cout << "result: " << std::get<double>(res) << std::endl;
+    } else {
+      std::cout << "result (bool): " << std::get<bool>(res) << std::endl;
+    }
 
     return 0;
   }

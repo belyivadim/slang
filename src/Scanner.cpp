@@ -54,7 +54,7 @@ const std::vector<Token>& Scanner::scan_tokens() {
     scan_token();
   }
 
-  m_tokens.push_back(Token(END_OF_FILE, "", Token::Literal(nullptr), m_line));
+  m_tokens.push_back(Token(END_OF_FILE, "", nullptr, m_line));
   return m_tokens;
 }
 
@@ -199,7 +199,7 @@ char Scanner::peek_next() const {
 
 char Scanner::advance() { return m_src[m_current++]; }
 
-void Scanner::add_token(TokenType type, Token::Literal literal) {
+void Scanner::add_token(TokenType type, Object literal) {
   std::string lexeme = m_src.substr(m_start, m_current - m_start);
   m_tokens.push_back(Token(type, lexeme, literal, m_line));
 }

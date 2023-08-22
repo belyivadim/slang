@@ -136,7 +136,7 @@ def main() -> None:
     define_ast(output_dir, "Expr", [
         "Binary     with std::shared_ptr<Expr> left, Token oper, std::shared_ptr<Expr> right",
         "Grouping   with std::shared_ptr<Expr> expression",
-        "Literal    with Token::Literal value",
+        "Literal    with Object value",
         "Unary      with Token oper, std::shared_ptr<Expr> right"
         ])
 

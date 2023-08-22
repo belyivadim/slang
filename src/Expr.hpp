@@ -114,7 +114,7 @@ public:
 
 class Literal : public Expr {
 public:
-  Literal(Token::Literal value) :
+  Literal(Object value) :
     Expr(),
     m_value(value)
   {}
@@ -129,7 +129,7 @@ public:
     visitor.visitLiteralExpr(*this);
   }
 
-  Token::Literal m_value;
+  Object m_value;
 
 };
 

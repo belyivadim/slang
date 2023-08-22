@@ -21,7 +21,7 @@ public:
   AstPrinter &operator=(const AstPrinter &) = default;
   ~AstPrinter() = default;
 
-    string print(expr::Expr& expr) {
+  string print(expr::Expr& expr) {
     return GetValue(expr);
   }
 
@@ -43,7 +43,7 @@ public:
   
 private:
 
-    string parenthesize(const string& name, const vector<std::shared_ptr<expr::Expr>>& exprs) {
+  string parenthesize(const string& name, const vector<std::shared_ptr<expr::Expr>>& exprs) {
     string result = "(" + name;
 
     for (auto e : exprs) {
