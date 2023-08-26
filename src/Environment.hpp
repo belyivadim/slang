@@ -22,18 +22,31 @@ public:
     variables[name] = value;
   }
 
+  void assign(const Token& name, const Object& value) {
+    auto found = get_iter(name);
+    found->second = value;
+  }
+
   Object& get(const Token& name) {
+    auto found = get_iter(name);
+    return found->second;
+  }
+
+private:
+  std::unordered_map<std::string, Object> variables{};
+
+
+  using iterator = std::unordered_map<std::string, Object>::iterator;
+
+  iterator get_iter(const Token& name) {
     auto found = variables.find(name.m_lexeme);
 
     if (found == variables.end()) {
       throw RuntimeError(name, "Undefined variable '" + name.m_lexeme + "'.");
     }
 
-    return found->second;
+    return found;
   }
-
-private:
-  std::unordered_map<std::string, Object> variables{};
 
 };
 

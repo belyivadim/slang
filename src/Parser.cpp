@@ -67,7 +67,26 @@ shared_ptr<stmt::Stmt> Parser::expression_statement() {
 }
 
 shared_ptr<expr::Expr> Parser::expression() {
-  return equality();
+  return assigment();
+}
+
+
+shared_ptr<expr::Expr> Parser::assigment() {
+  auto expr = equality();
+
+  if (match({EQ})) {
+    auto& equals = previous();
+    auto value = assigment();
+
+    if (expr::Variable *v = dynamic_cast<expr::Variable*>(expr.get())) {
+      Token name = v->m_name;
+      return make_shared<expr::Assign>(name, value);
+    }
+
+    error(equals, "Invalid assigment target.");
+  }
+
+  return expr;
 }
 
 shared_ptr<expr::Expr> Parser::equality() {

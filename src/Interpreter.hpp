@@ -30,6 +30,7 @@ public:
   void visitLiteralExpr(expr::Literal &expr) override;
   void visitGroupingExpr(expr::Grouping &expr) override;
   void visitVariableExpr(expr::Variable &expr) override;
+  void visitAssignExpr(expr::Assign &expr) override;
 
   void visitExpressionStmt(stmt::Expression &stmt) override;
   void visitPrintStmt(stmt::Print &stmt) override;

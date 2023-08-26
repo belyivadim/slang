@@ -145,6 +145,7 @@ def main() -> None:
         ["memory"],
         ["Token.hpp"],
         [
+        "Assign     with Token name, std::shared_ptr<Expr> value",
         "Binary     with std::shared_ptr<Expr> left, Token oper, std::shared_ptr<Expr> right",
         "Grouping   with std::shared_ptr<Expr> expression",
         "Literal    with Object value",

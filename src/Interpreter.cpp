@@ -127,6 +127,12 @@ void Interpreter::visitVariableExpr(expr::Variable &expr) {
   Return(m_env.get(expr.m_name));
 }
 
+void Interpreter::visitAssignExpr(expr::Assign &expr) {
+  auto value = evaluate(*expr.m_value);
+  m_env.assign(expr.m_name, value);
+  Return(value);
+}
+
 void Interpreter::visitExpressionStmt(stmt::Expression &stmt) {
   evaluate(*stmt.m_expression);
 }

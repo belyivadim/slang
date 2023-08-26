@@ -45,6 +45,7 @@ private:
   shared_ptr<stmt::Stmt> expression_statement();
 
   shared_ptr<expr::Expr> expression();
+  shared_ptr<expr::Expr> assigment();
   shared_ptr<expr::Expr> equality();
   shared_ptr<expr::Expr> comprasion();
   shared_ptr<expr::Expr> term();

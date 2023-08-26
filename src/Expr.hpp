@@ -9,6 +9,7 @@ namespace slang {
 
 namespace expr {
 
+class Assign;
 class Binary;
 class Grouping;
 class Literal;
@@ -24,6 +25,7 @@ public:
   IVisitor& operator=(IVisitor&&) = default;
   virtual ~IVisitor() = default;
 
+  virtual void visitAssignExpr(Assign& expr) = 0;
   virtual void visitBinaryExpr(Binary& expr) = 0;
   virtual void visitGroupingExpr(Grouping& expr) = 0;
   virtual void visitLiteralExpr(Literal& expr) = 0;
@@ -65,6 +67,29 @@ public:
 
 private:
   R m_value;
+
+};
+
+class Assign : public Expr {
+public:
+  Assign(Token name, std::shared_ptr<Expr> value) :
+    Expr(),
+    m_name(name),
+    m_value(value)
+  {}
+
+  Assign(const Assign&) = default;
+  Assign(Assign&&) = default;
+  Assign& operator=(const Assign&) = default;
+  Assign& operator=(Assign&&) = default;
+  virtual ~Assign() = default;
+
+  void accept(IVisitor& visitor) override {
+    visitor.visitAssignExpr(*this);
+  }
+
+  Token m_name;
+  std::shared_ptr<Expr> m_value;
 
 };
 
