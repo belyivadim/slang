@@ -38,7 +38,7 @@ public:
   }
 
   void visitLiteralExpr(expr::Literal &expr) override {
-    Return(Token::literal_to_string(expr.m_value));
+    Return(object_to_string(expr.m_value));
   }
   
 private:

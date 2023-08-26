@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 
+#include "RuntimeError.hpp"
 #include "Token.hpp"
 
 namespace slang {
@@ -21,7 +22,7 @@ public:
   void report(int line, const std::string& where, const std::string& msg) {
     std::stringstream ss;
     ss << "[line " << line << "] Error " << where << ": " << msg;
-    std::cout << ss.str() << std::endl;
+    std::cerr << ss.str() << std::endl;
     m_has_error = true;
   }
 
@@ -37,12 +38,22 @@ public:
     report(line, "", msg);
   }
 
+  void runtime_error(const RuntimeError& e) {
+    std::stringstream ss;
+    ss << e.what() << "\n[line " + std::to_string(e.m_token.m_line) << "]";
+    std::cerr << ss.str() << std::endl;
+    m_has_runtime_error = true;
+  }
+
   bool has_error() const { return m_has_error; }
+
+  bool has_runtime_error() const { return m_has_runtime_error; }
 
   void discard_error_state() { m_has_error = false; }
 
 private:
   bool m_has_error{false};
+  bool m_has_runtime_error{false};
 };
   
 } // namespace slang

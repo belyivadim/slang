@@ -63,16 +63,10 @@ private:
     AstPrinter printer;
     std::cout << printer.print(*expr) << std::endl;
 
-    Interpreter interpreter;
-    auto res = interpreter.evaluate(*expr);
+    Interpreter interpreter(m_reporter);
+    interpreter.interpret(*expr);
 
-    if (std::holds_alternative<double>(res)) {
-      std::cout << "result: " << std::get<double>(res) << std::endl;
-    } else {
-      std::cout << "result (bool): " << std::get<bool>(res) << std::endl;
-    }
-
-    return 0;
+    return m_reporter->has_runtime_error() * 70;
   }
 
   int read_file(const char* path) {

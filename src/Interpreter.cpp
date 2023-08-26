@@ -1,14 +1,49 @@
+#include <iostream>
+
+#include "RuntimeError.hpp"
 #include "Interpreter.hpp"
 
 
 namespace slang {
 
+
+static void check_number_operand(const Token& operator_,
+                                 const Object& operand) {
+  if (std::holds_alternative<double>(operand)) return;
+
+  throw RuntimeError(operator_, "Operand must be a number.");
+}
+
+static void check_number_operands(const Token& operator_,
+                                 const Object& left,
+                                 const Object& right) {
+  if (std::holds_alternative<double>(left)
+      && std::holds_alternative<double>(right)) return;
+
+  throw RuntimeError(operator_, "Operands must be numbers.");
+}
+
 // ------------------------ | PUBLIC |
+Interpreter::Interpreter(std::shared_ptr<ErrorReporter> reporter)
+  : m_reporter(reporter) {}
+
+
+void Interpreter::interpret(expr::Expr& expr) {
+  try {
+    Object value = evaluate(expr);
+    std::cout << object_to_string(value) << std::endl;
+  } catch (const RuntimeError& e) {
+    m_reporter->runtime_error(e);
+  }
+}
+
+
 void Interpreter::visitUnaryExpr(expr::Unary &expr) {
   Object right = evaluate(*expr.m_right);
 
   switch (expr.m_oper.m_type) {
     case MINUS:
+      check_number_operand(expr.m_oper, right);
       Return(-std::get<double>(right));   
       break;
     case BANG:
@@ -18,7 +53,6 @@ void Interpreter::visitUnaryExpr(expr::Unary &expr) {
       Return(nullptr);
       break;
   }
-
 }
 
 
@@ -28,15 +62,19 @@ void Interpreter::visitBinaryExpr(expr::Binary &expr) {
 
   switch (expr.m_oper.m_type) {
     case GREATER:
+      check_number_operands(expr.m_oper, left, right);
       Return(std::get<double>(left) > std::get<double>(right));
       break;
     case GREATER_EQ:
+      check_number_operands(expr.m_oper, left, right);
       Return(std::get<double>(left) >= std::get<double>(right));
       break;
     case LESS:
+      check_number_operands(expr.m_oper, left, right);
       Return(std::get<double>(left) < std::get<double>(right));
       break;
     case LESS_EQ:
+      check_number_operands(expr.m_oper, left, right);
       Return(std::get<double>(left) <= std::get<double>(right));
       break;
 
@@ -48,12 +86,15 @@ void Interpreter::visitBinaryExpr(expr::Binary &expr) {
       break;
 
     case SLASH:
+      check_number_operands(expr.m_oper, left, right);
       Return(std::get<double>(left) / std::get<double>(right));
       break;
     case STAR:
+      check_number_operands(expr.m_oper, left, right);
       Return(std::get<double>(left) * std::get<double>(right));
       break;
     case MINUS:
+      check_number_operands(expr.m_oper, left, right);
       Return(std::get<double>(left) - std::get<double>(right));
       break;
     case PLUS:
@@ -64,7 +105,8 @@ void Interpreter::visitBinaryExpr(expr::Binary &expr) {
         Return(std::get<std::string>(left) + std::get<std::string>(right));
         break;
       }
-      break;
+      throw RuntimeError(expr.m_oper,
+                        "Operands must be two numbers or two strings.");
 
     default:
       Return(nullptr);

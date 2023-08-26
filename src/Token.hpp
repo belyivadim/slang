@@ -25,7 +25,6 @@ enum TokenType {
   END_OF_FILE
 };
 
-
 class Token {
 public:
   Token(TokenType type, const std::string& lexeme, Object literal, int line)
@@ -38,21 +37,10 @@ public:
   ~Token() = default;
 
   std::string to_string() const {
-    return std::to_string(m_type) + " " + m_lexeme + " " + literal_to_string(m_literal);
+    return std::to_string(m_type) + " " + m_lexeme + " " + object_to_string(m_literal);
   }
 
-  static std::string literal_to_string(const Object& literal) {
-    if (const double * pval = std::get_if<double>(&literal)) {
-      return std::to_string(*pval);
-    } else if (const bool * pval = std::get_if<bool>(&literal)) {
-      return *pval ? "true" : "false";
-    } else if (const std::string * pval = std::get_if<std::string>(&literal)) {
-      return *pval;
-    }
-
-    return "";
-  }
-
+  
   const TokenType m_type;
   const std::string m_lexeme;
   const Object m_literal;
