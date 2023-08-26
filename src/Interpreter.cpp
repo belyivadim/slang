@@ -28,10 +28,11 @@ Interpreter::Interpreter(std::shared_ptr<ErrorReporter> reporter)
   : m_reporter(reporter) {}
 
 
-void Interpreter::interpret(expr::Expr& expr) {
+void Interpreter::interpret(vector<shared_ptr<stmt::Stmt>>& statements) {
   try {
-    Object value = evaluate(expr);
-    std::cout << object_to_string(value) << std::endl;
+    for (auto& s : statements) {
+      execute(*s);
+    }
   } catch (const RuntimeError& e) {
     m_reporter->runtime_error(e);
   }
@@ -138,6 +139,21 @@ bool Interpreter::is_truthy(const Object& obj) {
   }
 
   return true;
+}
+
+
+void Interpreter::visitExpressionStmt(stmt::Expression &stmt) {
+  evaluate(*stmt.m_expression);
+}
+
+void Interpreter::visitPrintStmt(stmt::Print &stmt) {
+  auto value = evaluate(*stmt.m_expression);
+  std::cout << object_to_string(value) << std::endl;
+}
+
+
+void Interpreter::execute(stmt::Stmt& statement) {
+  statement.accept(*this);
 }
 
 } // namespace slang

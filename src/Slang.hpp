@@ -2,6 +2,7 @@
 #define __SLANG_SLANG_HPP__
 
 #include <fstream>
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -54,17 +55,17 @@ private:
     auto tokens = scanner.scan_tokens();
 
     Parser parser(tokens, m_reporter);
-    auto expr = parser.parse();
+    auto statements = parser.parse();
 
     if (m_reporter->has_error()) {
       return 65;
     }
 
     AstPrinter printer;
-    std::cout << printer.print(*expr) << std::endl;
+    //std::cout << printer.print(statements) << std::endl;
 
     Interpreter interpreter(m_reporter);
-    interpreter.interpret(*expr);
+    interpreter.interpret(statements);
 
     return m_reporter->has_runtime_error() * 70;
   }

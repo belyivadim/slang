@@ -6,6 +6,7 @@
 
 #include "Token.hpp"
 #include "Expr.hpp"
+#include "Stmt.hpp"
 #include "ErrorReporter.hpp"
 
 namespace slang {
@@ -23,7 +24,7 @@ public:
   Parser &operator=(const Parser &) = delete;
   ~Parser() = default;
 
-  shared_ptr<expr::Expr> parse();
+  vector<shared_ptr<stmt::Stmt>> parse();
 
 private:
   const vector<Token>& m_tokens;
@@ -36,6 +37,10 @@ private:
       : std::runtime_error("ParserError")
     {}
   };
+
+  shared_ptr<stmt::Stmt> statement();
+  shared_ptr<stmt::Stmt> print_statement();
+  shared_ptr<stmt::Stmt> expression_statement();
 
   shared_ptr<expr::Expr> expression();
   shared_ptr<expr::Expr> equality();

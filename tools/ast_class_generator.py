@@ -80,19 +80,27 @@ def define_type(header_file: io.TextIOWrapper, base_name: str, class_name: str, 
     header_file.write("\n};\n\n")
 
 
-def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
+def define_ast(output_dir: str, base_name: str, 
+               includes_std: list[str], includes_user: list[str],
+               types: list[str]) -> None:
     path = output_dir + "/" + base_name + ".hpp"
 
     with open(path, "w", encoding="UTF-8") as header_file:
-        header_file.write("#ifndef __SLANG_EXPR_HPP__\n")
-        header_file.write("#define __SLANG_EXPR_HPP__\n\n")
+        header_file.write(f"#ifndef __SLANG_{base_name.upper()}_HPP__\n")
+        header_file.write(f"#define __SLANG_{base_name.upper()}_HPP__\n\n")
 
-        header_file.write("#include <memory>\n\n")
-        header_file.write("#include \"Token.hpp\"\n\n")
+        for include in includes_std:
+            header_file.write(f"#include <{include}>\n")
+        header_file.write("\n")
+
+        for include in includes_user:
+            header_file.write(f"#include \"{include}\"\n")
+        header_file.write("\n")
+
 
         header_file.write("namespace slang {\n\n")
 
-        header_file.write("namespace expr {\n\n")
+        header_file.write("namespace " + base_name.lower() + " {\n\n")
 
         # forward decls
         for t in types:
@@ -124,7 +132,7 @@ def define_ast(output_dir: str, base_name: str, types: list[str]) -> None:
 
         header_file.write("} // namespace expr\n\n")
         header_file.write("} // namespace slang\n\n")
-        header_file.write("#endif // __SLANG_EXPR_HPP__\n")
+        header_file.write(f"#endif // __SLANG_{base_name.upper()}_HPP__\n")
 
 
 def main() -> None:
@@ -133,11 +141,22 @@ def main() -> None:
         exit(64)
 
     output_dir = sys.argv[1]
-    define_ast(output_dir, "Expr", [
+    define_ast(output_dir, "Expr",
+        ["memory"],
+        ["Token.hpp"],
+        [
         "Binary     with std::shared_ptr<Expr> left, Token oper, std::shared_ptr<Expr> right",
         "Grouping   with std::shared_ptr<Expr> expression",
         "Literal    with Object value",
         "Unary      with Token oper, std::shared_ptr<Expr> right"
+        ])
+
+    define_ast(output_dir, "Stmt", 
+        ["memory"],
+        ["Token.hpp", "Expr.hpp"],
+        [
+        "Expression with std::shared_ptr<expr::Expr> expression",
+        "Print      with std::shared_ptr<expr::Expr> expression"
         ])
 
 

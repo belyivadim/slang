@@ -11,18 +11,38 @@ Parser::Parser(const vector<Token>& tokens, shared_ptr<ErrorReporter> reporter)
 {}
 
 
-shared_ptr<expr::Expr> Parser::parse() {
-  try {
-    return expression();
-  } catch (const ParserError&) {
-    return nullptr;
+vector<shared_ptr<stmt::Stmt>> Parser::parse() {
+  vector<shared_ptr<stmt::Stmt>> statments;
+
+  while (!is_at_end()) {
+    statments.push_back(statement());
   }
+
+  return statments;
 }
 
 
 // ------------------------ | PRIVATE |
 //
 // ------------------------ | RULES |
+shared_ptr<stmt::Stmt> Parser::statement() {
+  if (match({PRINT})) return print_statement();
+
+  return expression_statement();
+}
+
+shared_ptr<stmt::Stmt> Parser::print_statement() {
+  auto value = expression();
+  consume(SEMICOLON, "Exprect ';' after value.");
+  return make_shared<stmt::Print>(stmt::Print(value));
+}
+
+shared_ptr<stmt::Stmt> Parser::expression_statement() {
+  auto expr = expression();
+  consume(SEMICOLON, "Exprect ';' after expression.");
+  return make_shared<stmt::Expression>(stmt::Expression(expr));
+}
+
 shared_ptr<expr::Expr> Parser::expression() {
   return equality();
 }
