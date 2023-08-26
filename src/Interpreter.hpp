@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <vector>
 
+#include "Environment.hpp"
 #include "Expr.hpp"
 #include "Stmt.hpp"
 #include "ErrorReporter.hpp"
@@ -28,13 +29,16 @@ public:
   void visitBinaryExpr(expr::Binary &expr) override;
   void visitLiteralExpr(expr::Literal &expr) override;
   void visitGroupingExpr(expr::Grouping &expr) override;
+  void visitVariableExpr(expr::Variable &expr) override;
 
   void visitExpressionStmt(stmt::Expression &stmt) override;
   void visitPrintStmt(stmt::Print &stmt) override;
+  void visitVarStmt(stmt::Var &stmt) override;
 
   void interpret(vector<shared_ptr<stmt::Stmt>>& statements);
 private:
   std::shared_ptr<ErrorReporter> m_reporter;
+  Environment m_env;
 
   Object evaluate(expr::Expr& expr);
   bool is_truthy(const Object& obj);

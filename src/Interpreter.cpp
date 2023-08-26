@@ -123,6 +123,28 @@ void Interpreter::visitGroupingExpr(expr::Grouping &expr) {
   Return(evaluate(*expr.m_expression));
 }
 
+void Interpreter::visitVariableExpr(expr::Variable &expr) {
+  Return(m_env.get(expr.m_name));
+}
+
+void Interpreter::visitExpressionStmt(stmt::Expression &stmt) {
+  evaluate(*stmt.m_expression);
+}
+
+void Interpreter::visitPrintStmt(stmt::Print &stmt) {
+  auto value = evaluate(*stmt.m_expression);
+  std::cout << object_to_string(value) << std::endl;
+}
+
+void Interpreter::visitVarStmt(stmt::Var& stmt) {
+  Object value = nullptr;
+  if (stmt.m_initializer != nullptr) {
+    value = evaluate(*stmt.m_initializer);
+  }
+
+  m_env.define(stmt.m_name.m_lexeme, value);
+}
+
 // ------------------------ | PRIVATE |
 Object Interpreter::evaluate(expr::Expr& expr) {
   return GetValue(expr);
@@ -140,17 +162,6 @@ bool Interpreter::is_truthy(const Object& obj) {
 
   return true;
 }
-
-
-void Interpreter::visitExpressionStmt(stmt::Expression &stmt) {
-  evaluate(*stmt.m_expression);
-}
-
-void Interpreter::visitPrintStmt(stmt::Print &stmt) {
-  auto value = evaluate(*stmt.m_expression);
-  std::cout << object_to_string(value) << std::endl;
-}
-
 
 void Interpreter::execute(stmt::Stmt& statement) {
   statement.accept(*this);

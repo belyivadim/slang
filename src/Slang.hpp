@@ -61,7 +61,7 @@ private:
       return 65;
     }
 
-    AstPrinter printer;
+    //AstPrinter printer;
     //std::cout << printer.print(statements) << std::endl;
 
     Interpreter interpreter(m_reporter);

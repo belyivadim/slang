@@ -13,6 +13,7 @@ class Binary;
 class Grouping;
 class Literal;
 class Unary;
+class Variable;
 
 class IVisitor {
 public:
@@ -27,6 +28,7 @@ public:
   virtual void visitGroupingExpr(Grouping& expr) = 0;
   virtual void visitLiteralExpr(Literal& expr) = 0;
   virtual void visitUnaryExpr(Unary& expr) = 0;
+  virtual void visitVariableExpr(Variable& expr) = 0;
 };
 
 class Expr {
@@ -153,6 +155,27 @@ public:
 
   Token m_oper;
   std::shared_ptr<Expr> m_right;
+
+};
+
+class Variable : public Expr {
+public:
+  Variable(Token name) :
+    Expr(),
+    m_name(name)
+  {}
+
+  Variable(const Variable&) = default;
+  Variable(Variable&&) = default;
+  Variable& operator=(const Variable&) = default;
+  Variable& operator=(Variable&&) = default;
+  virtual ~Variable() = default;
+
+  void accept(IVisitor& visitor) override {
+    visitor.visitVariableExpr(*this);
+  }
+
+  Token m_name;
 
 };
 

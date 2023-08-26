@@ -15,7 +15,7 @@ vector<shared_ptr<stmt::Stmt>> Parser::parse() {
   vector<shared_ptr<stmt::Stmt>> statments;
 
   while (!is_at_end()) {
-    statments.push_back(statement());
+    statments.push_back(declaration());
   }
 
   return statments;
@@ -25,6 +25,29 @@ vector<shared_ptr<stmt::Stmt>> Parser::parse() {
 // ------------------------ | PRIVATE |
 //
 // ------------------------ | RULES |
+shared_ptr<stmt::Stmt> Parser::declaration() {
+  try {
+    if (match({LET})) return var_declaration();
+
+    return statement();
+  } catch (const ParserError& e) {
+    sync();
+    return nullptr;
+  }
+}
+
+shared_ptr<stmt::Stmt> Parser::var_declaration() {
+  auto& name = consume(IDENTIFIER, "Expect variable name.");
+
+  shared_ptr<expr::Expr> initializer;
+  if (match({EQ})) {
+    initializer = expression();
+  }
+
+  consume(SEMICOLON, "Expect ';' after variable declaration.");
+  return make_shared<stmt::Var>(stmt::Var(name, initializer));
+}
+
 shared_ptr<stmt::Stmt> Parser::statement() {
   if (match({PRINT})) return print_statement();
 
@@ -113,6 +136,8 @@ shared_ptr<expr::Expr> Parser::primary() {
   if (match({NUMBER, STRING})) {
     return make_shared<expr::Literal>(expr::Literal(previous().m_literal));
   }
+
+  if (match({IDENTIFIER})) return make_shared<expr::Variable>(previous());
 
   if (match({LEFT_PAREN})) {
     auto expr = expression();

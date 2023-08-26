@@ -12,6 +12,7 @@ namespace stmt {
 
 class Expression;
 class Print;
+class Var;
 
 class IVisitor {
 public:
@@ -24,6 +25,7 @@ public:
 
   virtual void visitExpressionStmt(Expression& stmt) = 0;
   virtual void visitPrintStmt(Print& stmt) = 0;
+  virtual void visitVarStmt(Var& stmt) = 0;
 };
 
 class Stmt {
@@ -102,6 +104,29 @@ public:
   }
 
   std::shared_ptr<expr::Expr> m_expression;
+
+};
+
+class Var : public Stmt {
+public:
+  Var(Token name, std::shared_ptr<expr::Expr> initializer) :
+    Stmt(),
+    m_name(name),
+    m_initializer(initializer)
+  {}
+
+  Var(const Var&) = default;
+  Var(Var&&) = default;
+  Var& operator=(const Var&) = default;
+  Var& operator=(Var&&) = default;
+  virtual ~Var() = default;
+
+  void accept(IVisitor& visitor) override {
+    visitor.visitVarStmt(*this);
+  }
+
+  Token m_name;
+  std::shared_ptr<expr::Expr> m_initializer;
 
 };
 

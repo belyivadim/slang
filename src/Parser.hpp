@@ -38,6 +38,8 @@ private:
     {}
   };
 
+  shared_ptr<stmt::Stmt> declaration();
+  shared_ptr<stmt::Stmt> var_declaration();
   shared_ptr<stmt::Stmt> statement();
   shared_ptr<stmt::Stmt> print_statement();
   shared_ptr<stmt::Stmt> expression_statement();

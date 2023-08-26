@@ -3,6 +3,7 @@
 
 #include <string>
 #include <variant>
+#include <iostream>
 
 namespace slang {
 
@@ -10,7 +11,15 @@ namespace slang {
 
 inline std::string object_to_string(const Object& obj) {
   if (const double * pval = std::get_if<double>(&obj)) {
-    return std::to_string(*pval);
+    constexpr char trailing_zeros[] = ".000000";
+    constexpr size_t tz_size = sizeof(trailing_zeros) - 1;
+    auto str = std::to_string(*pval);
+
+    if (0 == str.compare(str.length() - tz_size, tz_size, trailing_zeros)) {
+      str = str.substr(0, str.length() - tz_size);
+    }
+
+    return str;
   } else if (const bool * pval = std::get_if<bool>(&obj)) {
     return *pval ? "true" : "false";
   } else if (const std::string * pval = std::get_if<std::string>(&obj)) {
