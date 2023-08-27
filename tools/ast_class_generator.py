@@ -155,6 +155,7 @@ def main() -> None:
         "Binary     with std::shared_ptr<Expr> left, Token oper, std::shared_ptr<Expr> right",
         "Grouping   with std::shared_ptr<Expr> expression",
         "Literal    with Object value",
+        "Logical    with std::shared_ptr<Expr> left, Token oper, std::shared_ptr<Expr> right",
         "Unary      with Token oper, std::shared_ptr<Expr> right",
         "Variable   with Token name"
         ])

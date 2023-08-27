@@ -48,6 +48,8 @@ private:
 
   shared_ptr<expr::Expr> expression();
   shared_ptr<expr::Expr> assigment();
+  shared_ptr<expr::Expr> or_();
+  shared_ptr<expr::Expr> and_();
   shared_ptr<expr::Expr> equality();
   shared_ptr<expr::Expr> comprasion();
   shared_ptr<expr::Expr> term();

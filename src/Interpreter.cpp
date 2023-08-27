@@ -135,6 +135,24 @@ void Interpreter::visitAssignExpr(expr::Assign &expr) {
   Return(value);
 }
 
+void Interpreter::visitLogicalExpr(expr::Logical &expr) {
+  auto left = evaluate(*expr.m_left);
+
+  if (expr.m_oper.m_type == OR) {
+    if (is_truthy(left)) {
+      Return(left);
+      return;
+    }
+  } else {
+    if (!is_truthy(left)) {
+      Return(left);
+      return;
+    }
+  }
+
+  Return(evaluate(*expr.m_right));
+}
+
 void Interpreter::visitExpressionStmt(stmt::Expression &stmt) {
   evaluate(*stmt.m_expression);
 }

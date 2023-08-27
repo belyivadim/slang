@@ -97,7 +97,7 @@ shared_ptr<expr::Expr> Parser::expression() {
 
 
 shared_ptr<expr::Expr> Parser::assigment() {
-  auto expr = equality();
+  auto expr = or_();
 
   if (match({EQ})) {
     auto& equals = previous();
@@ -109,6 +109,30 @@ shared_ptr<expr::Expr> Parser::assigment() {
     }
 
     error(equals, "Invalid assigment target.");
+  }
+
+  return expr;
+}
+
+shared_ptr<expr::Expr> Parser::or_() {
+  auto expr = and_();
+
+  while (match({OR})) {
+    auto& oper = previous();
+    auto right = and_();
+    expr = make_shared<expr::Logical>(expr::Logical(expr, oper, right));
+  }
+
+  return expr;
+}
+
+shared_ptr<expr::Expr> Parser::and_() {
+  auto expr = equality();
+
+  while (match({AND})) {
+    auto& oper = previous();
+    auto right = equality();
+    expr = make_shared<expr::Logical>(expr::Logical(expr, oper, right));
   }
 
   return expr;
