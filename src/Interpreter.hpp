@@ -13,6 +13,7 @@ namespace slang {
 
 using std::vector;
 using std::shared_ptr;
+using std::unique_ptr;
 
 class Interpreter : public expr::ValueGetter<Interpreter, expr::Expr, Object>,
                     public expr::IVisitor,
@@ -20,9 +21,9 @@ class Interpreter : public expr::ValueGetter<Interpreter, expr::Expr, Object>,
 public:
   Interpreter(std::shared_ptr<ErrorReporter> reporter);
   Interpreter(Interpreter &&) = default;
-  Interpreter(const Interpreter &) = default;
+  Interpreter(const Interpreter &) = delete;
   Interpreter &operator=(Interpreter &&) = default;
-  Interpreter &operator=(const Interpreter &) = default;
+  Interpreter &operator=(const Interpreter &) = delete;
   ~Interpreter() = default;
 
   void visitUnaryExpr(expr::Unary &expr) override;
@@ -35,16 +36,19 @@ public:
   void visitExpressionStmt(stmt::Expression &stmt) override;
   void visitPrintStmt(stmt::Print &stmt) override;
   void visitVarStmt(stmt::Var &stmt) override;
+  void visitBlockStmt(stmt::Block &stmt) override;
 
   void interpret(vector<shared_ptr<stmt::Stmt>>& statements);
 private:
-  std::shared_ptr<ErrorReporter> m_reporter;
-  Environment m_env;
+  shared_ptr<ErrorReporter> m_reporter;
+  unique_ptr<Environment> m_env;
 
   Object evaluate(expr::Expr& expr);
   bool is_truthy(const Object& obj);
   
   void execute(stmt::Stmt& statement);
+  void executeBlock(vector<shared_ptr<stmt::Stmt>>& statements,
+                    unique_ptr<Environment> env);
 
 };
 

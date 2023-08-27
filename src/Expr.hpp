@@ -72,7 +72,7 @@ private:
 
 class Assign : public Expr {
 public:
-  Assign(Token name, std::shared_ptr<Expr> value) :
+  Assign(const Token& name, const std::shared_ptr<Expr>& value) :
     Expr(),
     m_name(name),
     m_value(value)
@@ -95,7 +95,7 @@ public:
 
 class Binary : public Expr {
 public:
-  Binary(std::shared_ptr<Expr> left, Token oper, std::shared_ptr<Expr> right) :
+  Binary(const std::shared_ptr<Expr>& left, const Token& oper, const std::shared_ptr<Expr>& right) :
     Expr(),
     m_left(left),
     m_oper(oper),
@@ -120,7 +120,7 @@ public:
 
 class Grouping : public Expr {
 public:
-  Grouping(std::shared_ptr<Expr> expression) :
+  Grouping(const std::shared_ptr<Expr>& expression) :
     Expr(),
     m_expression(expression)
   {}
@@ -141,7 +141,7 @@ public:
 
 class Literal : public Expr {
 public:
-  Literal(Object value) :
+  Literal(const Object& value) :
     Expr(),
     m_value(value)
   {}
@@ -162,7 +162,7 @@ public:
 
 class Unary : public Expr {
 public:
-  Unary(Token oper, std::shared_ptr<Expr> right) :
+  Unary(const Token& oper, const std::shared_ptr<Expr>& right) :
     Expr(),
     m_oper(oper),
     m_right(right)
@@ -185,7 +185,7 @@ public:
 
 class Variable : public Expr {
 public:
-  Variable(Token name) :
+  Variable(const Token& name) :
     Expr(),
     m_name(name)
   {}

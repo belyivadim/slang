@@ -55,8 +55,14 @@ def define_type(header_file: io.TextIOWrapper, base_name: str, class_name: str, 
 
     fields_splited = fields.split(", ")
 
+
     # ctor
-    header_file.write("  " + class_name + "(" + fields + ") :\n")
+    header_file.write("  " + class_name + "(")
+    for i in range(fields_splited.__len__()):
+        t, name = fields_splited[i].split(" ")
+        t = f"const {t}&"
+        end = ", " if i != fields_splited.__len__() - 1 else ") :\n"
+        header_file.write(f"{t} {name}{end}")
     header_file.write(f"    {base_name}(),\n")
     for i in range(fields_splited.__len__()):
         field = fields_splited[i]
@@ -154,9 +160,10 @@ def main() -> None:
         ])
 
     define_ast(output_dir, "Stmt", 
-        ["memory"],
+        ["memory", "vector"],
         ["Token.hpp", "Expr.hpp"],
         [
+        "Block      with std::vector<std::shared_ptr<Stmt>> statements",
         "Expression with std::shared_ptr<expr::Expr> expression",
         "Print      with std::shared_ptr<expr::Expr> expression",
         "Var        with Token name, std::shared_ptr<expr::Expr> initializer"

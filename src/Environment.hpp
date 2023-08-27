@@ -1,6 +1,7 @@
 #ifndef __SLANG_ENVIRONMENT_HPP__
 #define __SLANG_ENVIRONMENT_HPP__
 
+#include <memory>
 #include <unordered_map>
 #include <string>
 
@@ -12,6 +13,9 @@ namespace slang {
 class Environment {
 public:
   Environment() = default;
+  explicit Environment(Environment* enclosing)
+    : m_enclosing(enclosing) {}
+
   Environment(Environment &&) = default;
   Environment(const Environment &) = default;
   Environment &operator=(Environment &&) = default;
@@ -27,12 +31,13 @@ public:
     found->second = value;
   }
 
-  Object& get(const Token& name) {
+  Object& get_variable(const Token& name) {
     auto found = get_iter(name);
     return found->second;
   }
 
 private:
+  Environment* m_enclosing{nullptr};
   std::unordered_map<std::string, Object> variables{};
 
 
@@ -41,11 +46,15 @@ private:
   iterator get_iter(const Token& name) {
     auto found = variables.find(name.m_lexeme);
 
-    if (found == variables.end()) {
-      throw RuntimeError(name, "Undefined variable '" + name.m_lexeme + "'.");
+    if (found != variables.end()) {
+      return found;
     }
 
-    return found;
+    if (m_enclosing != nullptr) {
+      return m_enclosing->get_iter(name);
+    }
+
+    throw RuntimeError(name, "Undefined variable '" + name.m_lexeme + "'.");
   }
 
 };

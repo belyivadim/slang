@@ -2,6 +2,7 @@
 #define __SLANG_STMT_HPP__
 
 #include <memory>
+#include <vector>
 
 #include "Token.hpp"
 #include "Expr.hpp"
@@ -10,6 +11,7 @@ namespace slang {
 
 namespace stmt {
 
+class Block;
 class Expression;
 class Print;
 class Var;
@@ -23,6 +25,7 @@ public:
   IVisitor& operator=(IVisitor&&) = default;
   virtual ~IVisitor() = default;
 
+  virtual void visitBlockStmt(Block& stmt) = 0;
   virtual void visitExpressionStmt(Expression& stmt) = 0;
   virtual void visitPrintStmt(Print& stmt) = 0;
   virtual void visitVarStmt(Var& stmt) = 0;
@@ -65,9 +68,30 @@ private:
 
 };
 
+class Block : public Stmt {
+public:
+  Block(const std::vector<std::shared_ptr<Stmt>>& statements) :
+    Stmt(),
+    m_statements(statements)
+  {}
+
+  Block(const Block&) = default;
+  Block(Block&&) = default;
+  Block& operator=(const Block&) = default;
+  Block& operator=(Block&&) = default;
+  virtual ~Block() = default;
+
+  void accept(IVisitor& visitor) override {
+    visitor.visitBlockStmt(*this);
+  }
+
+  std::vector<std::shared_ptr<Stmt>> m_statements;
+
+};
+
 class Expression : public Stmt {
 public:
-  Expression(std::shared_ptr<expr::Expr> expression) :
+  Expression(const std::shared_ptr<expr::Expr>& expression) :
     Stmt(),
     m_expression(expression)
   {}
@@ -88,7 +112,7 @@ public:
 
 class Print : public Stmt {
 public:
-  Print(std::shared_ptr<expr::Expr> expression) :
+  Print(const std::shared_ptr<expr::Expr>& expression) :
     Stmt(),
     m_expression(expression)
   {}
@@ -109,7 +133,7 @@ public:
 
 class Var : public Stmt {
 public:
-  Var(Token name, std::shared_ptr<expr::Expr> initializer) :
+  Var(const Token& name, const std::shared_ptr<expr::Expr>& initializer) :
     Stmt(),
     m_name(name),
     m_initializer(initializer)

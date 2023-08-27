@@ -6,7 +6,7 @@
 
 namespace slang {
 
-
+// ------------------------ | HELPERS |
 static void check_number_operand(const Token& operator_,
                                  const Object& operand) {
   if (std::holds_alternative<double>(operand)) return;
@@ -25,7 +25,9 @@ static void check_number_operands(const Token& operator_,
 
 // ------------------------ | PUBLIC |
 Interpreter::Interpreter(std::shared_ptr<ErrorReporter> reporter)
-  : m_reporter(reporter) {}
+  : m_reporter(reporter),
+  m_env(std::make_unique<Environment>(Environment{})) 
+{}
 
 
 void Interpreter::interpret(vector<shared_ptr<stmt::Stmt>>& statements) {
@@ -124,12 +126,12 @@ void Interpreter::visitGroupingExpr(expr::Grouping &expr) {
 }
 
 void Interpreter::visitVariableExpr(expr::Variable &expr) {
-  Return(m_env.get(expr.m_name));
+  Return(m_env->get_variable(expr.m_name));
 }
 
 void Interpreter::visitAssignExpr(expr::Assign &expr) {
   auto value = evaluate(*expr.m_value);
-  m_env.assign(expr.m_name, value);
+  m_env->assign(expr.m_name, value);
   Return(value);
 }
 
@@ -148,7 +150,12 @@ void Interpreter::visitVarStmt(stmt::Var& stmt) {
     value = evaluate(*stmt.m_initializer);
   }
 
-  m_env.define(stmt.m_name.m_lexeme, value);
+  m_env->define(stmt.m_name.m_lexeme, value);
+}
+
+
+void Interpreter::visitBlockStmt(stmt::Block &stmt) {
+  executeBlock(stmt.m_statements, std::make_unique<Environment>(Environment(&*m_env)));
 }
 
 // ------------------------ | PRIVATE |
@@ -172,5 +179,35 @@ bool Interpreter::is_truthy(const Object& obj) {
 void Interpreter::execute(stmt::Stmt& statement) {
   statement.accept(*this);
 }
+
+void Interpreter::executeBlock(
+    vector<shared_ptr<stmt::Stmt>>& statements,
+    std::unique_ptr<Environment> env
+) {
+
+  /// Stores environment @env and restore it on destruction
+  class RaiiEnv {
+  public:
+    explicit RaiiEnv(unique_ptr<Environment>& env)
+      : m_env_to_restore(env),
+        m_prev(std::move(env)) {}
+
+    ~RaiiEnv() {
+      m_env_to_restore = std::move(m_prev);
+    }
+
+  private:
+    unique_ptr<Environment>& m_env_to_restore;
+    unique_ptr<Environment> m_prev;
+  };
+
+
+  RaiiEnv e(m_env);
+  m_env = std::move(env);
+  for (auto& s : statements) {
+    execute(*s);
+  }
+}
+
 
 } // namespace slang

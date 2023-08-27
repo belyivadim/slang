@@ -50,8 +50,21 @@ shared_ptr<stmt::Stmt> Parser::var_declaration() {
 
 shared_ptr<stmt::Stmt> Parser::statement() {
   if (match({PRINT})) return print_statement();
+  if (match({LEFT_BRACE})) 
+    return make_shared<stmt::Block>(stmt::Block(block()));
 
   return expression_statement();
+}
+
+vector<shared_ptr<stmt::Stmt>> Parser::block() {
+  vector<shared_ptr<stmt::Stmt>> statements;
+
+  while (!check(RIGHT_BRACE) && !is_at_end()) {
+    statements.push_back(declaration());
+  }
+
+  consume(RIGHT_BRACE, "Expect '}' after block.");
+  return statements;
 }
 
 shared_ptr<stmt::Stmt> Parser::print_statement() {
