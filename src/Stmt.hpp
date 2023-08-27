@@ -13,6 +13,7 @@ namespace stmt {
 
 class Block;
 class Expression;
+class If;
 class Print;
 class Var;
 
@@ -27,6 +28,7 @@ public:
 
   virtual void visitBlockStmt(Block& stmt) = 0;
   virtual void visitExpressionStmt(Expression& stmt) = 0;
+  virtual void visitIfStmt(If& stmt) = 0;
   virtual void visitPrintStmt(Print& stmt) = 0;
   virtual void visitVarStmt(Var& stmt) = 0;
 };
@@ -107,6 +109,31 @@ public:
   }
 
   std::shared_ptr<expr::Expr> m_expression;
+
+};
+
+class If : public Stmt {
+public:
+  If(const std::shared_ptr<expr::Expr>& condition, const std::shared_ptr<Stmt>& then_branch, const std::shared_ptr<Stmt>& else_branch) :
+    Stmt(),
+    m_condition(condition),
+    m_then_branch(then_branch),
+    m_else_branch(else_branch)
+  {}
+
+  If(const If&) = default;
+  If(If&&) = default;
+  If& operator=(const If&) = default;
+  If& operator=(If&&) = default;
+  virtual ~If() = default;
+
+  void accept(IVisitor& visitor) override {
+    visitor.visitIfStmt(*this);
+  }
+
+  std::shared_ptr<expr::Expr> m_condition;
+  std::shared_ptr<Stmt> m_then_branch;
+  std::shared_ptr<Stmt> m_else_branch;
 
 };
 

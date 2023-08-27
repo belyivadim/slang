@@ -155,7 +155,16 @@ void Interpreter::visitVarStmt(stmt::Var& stmt) {
 
 
 void Interpreter::visitBlockStmt(stmt::Block &stmt) {
-  executeBlock(stmt.m_statements, std::make_unique<Environment>(Environment(&*m_env)));
+  executeBlock(stmt.m_statements,
+               std::make_unique<Environment>(Environment(&*m_env)));
+}
+
+void Interpreter::visitIfStmt(stmt::If &stmt) {
+  if (is_truthy(evaluate(*stmt.m_condition))) {
+    execute(*stmt.m_then_branch);
+  } else if (stmt.m_else_branch != nullptr) {
+    execute(*stmt.m_else_branch);
+  }
 }
 
 // ------------------------ | PRIVATE |

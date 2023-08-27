@@ -37,6 +37,7 @@ public:
   void visitPrintStmt(stmt::Print &stmt) override;
   void visitVarStmt(stmt::Var &stmt) override;
   void visitBlockStmt(stmt::Block &stmt) override;
+  void visitIfStmt(stmt::If &stmt) override;
 
   void interpret(vector<shared_ptr<stmt::Stmt>>& statements);
 private:

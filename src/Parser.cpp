@@ -49,11 +49,23 @@ shared_ptr<stmt::Stmt> Parser::var_declaration() {
 }
 
 shared_ptr<stmt::Stmt> Parser::statement() {
+  if (match({IF})) return if_statement();
   if (match({PRINT})) return print_statement();
   if (match({LEFT_BRACE})) 
     return make_shared<stmt::Block>(stmt::Block(block()));
 
   return expression_statement();
+}
+
+shared_ptr<stmt::Stmt> Parser::if_statement() {
+  consume(LEFT_PAREN, "Expected '(' after 'if'.");
+  auto condition = expression();
+  consume(RIGHT_PAREN, "Expected ')' after if condition.");
+
+  auto then_branch = statement();
+  shared_ptr<stmt::Stmt> else_branch = match({ELSE}) ? statement() : nullptr;
+
+  return make_shared<stmt::If>(stmt::If(condition, then_branch, else_branch));
 }
 
 vector<shared_ptr<stmt::Stmt>> Parser::block() {
