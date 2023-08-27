@@ -16,6 +16,7 @@ class Expression;
 class If;
 class Print;
 class Var;
+class While;
 
 class IVisitor {
 public:
@@ -31,6 +32,7 @@ public:
   virtual void visitIfStmt(If& stmt) = 0;
   virtual void visitPrintStmt(Print& stmt) = 0;
   virtual void visitVarStmt(Var& stmt) = 0;
+  virtual void visitWhileStmt(While& stmt) = 0;
 };
 
 class Stmt {
@@ -178,6 +180,31 @@ public:
 
   Token m_name;
   std::shared_ptr<expr::Expr> m_initializer;
+
+};
+
+class While : public Stmt {
+public:
+  While(const std::shared_ptr<expr::Expr>& condition, const std::shared_ptr<Stmt>& then_branch, const std::shared_ptr<Stmt>& else_branch) :
+    Stmt(),
+    m_condition(condition),
+    m_then_branch(then_branch),
+    m_else_branch(else_branch)
+  {}
+
+  While(const While&) = default;
+  While(While&&) = default;
+  While& operator=(const While&) = default;
+  While& operator=(While&&) = default;
+  virtual ~While() = default;
+
+  void accept(IVisitor& visitor) override {
+    visitor.visitWhileStmt(*this);
+  }
+
+  std::shared_ptr<expr::Expr> m_condition;
+  std::shared_ptr<Stmt> m_then_branch;
+  std::shared_ptr<Stmt> m_else_branch;
 
 };
 

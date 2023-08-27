@@ -185,6 +185,17 @@ void Interpreter::visitIfStmt(stmt::If &stmt) {
   }
 }
 
+
+void Interpreter::visitWhileStmt(stmt::While &stmt) {
+  if (is_truthy(evaluate(*stmt.m_condition))) {
+    do {
+      execute(*stmt.m_then_branch);
+    } while (is_truthy(evaluate(*stmt.m_condition)));
+  } else if (stmt.m_else_branch != nullptr) {
+    execute(*stmt.m_else_branch);
+  }
+}
+
 // ------------------------ | PRIVATE |
 Object Interpreter::evaluate(expr::Expr& expr) {
   return GetValue(expr);

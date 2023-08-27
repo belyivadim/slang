@@ -49,8 +49,10 @@ shared_ptr<stmt::Stmt> Parser::var_declaration() {
 }
 
 shared_ptr<stmt::Stmt> Parser::statement() {
+  if (match({FOR})) return for_statement();
   if (match({IF})) return if_statement();
   if (match({PRINT})) return print_statement();
+  if (match({WHILE})) return while_statement();
   if (match({LEFT_BRACE})) 
     return make_shared<stmt::Block>(stmt::Block(block()));
 
@@ -66,6 +68,64 @@ shared_ptr<stmt::Stmt> Parser::if_statement() {
   shared_ptr<stmt::Stmt> else_branch = match({ELSE}) ? statement() : nullptr;
 
   return make_shared<stmt::If>(stmt::If(condition, then_branch, else_branch));
+}
+
+shared_ptr<stmt::Stmt> Parser::while_statement() {
+  consume(LEFT_PAREN, "Expected '(' after 'while'.");
+  auto condition = expression();
+  consume(RIGHT_PAREN, "Expected ')' after while condition.");
+
+  auto then_branch = statement();
+  shared_ptr<stmt::Stmt> else_branch = match({ELSE}) ? statement() : nullptr;
+
+  return make_shared<stmt::While>(stmt::While(condition, then_branch, else_branch));
+}
+
+shared_ptr<stmt::Stmt> Parser::for_statement() {
+  consume(LEFT_PAREN, "Expected '(' after 'for'.");
+
+  shared_ptr<stmt::Stmt> initializer{nullptr};
+  if (match({LET})) {
+    initializer = var_declaration();
+  } else if (!match({SEMICOLON})) {
+    initializer = expression_statement();
+  }
+
+  shared_ptr<expr::Expr> condition{nullptr};
+  if (!check(SEMICOLON)) {
+    condition = expression();
+  }
+  consume(SEMICOLON, "Expect ';' after loop condition.");
+
+  shared_ptr<expr::Expr> increment{nullptr};
+  if (!check(RIGHT_PAREN)) {
+    increment = expression();
+  }
+  consume(RIGHT_PAREN, "Expect ')' after for clauses.");
+
+  shared_ptr<stmt::Stmt> body = statement();
+
+  if (increment != nullptr) {
+    body = make_shared<stmt::Block>(
+      stmt::Block({body, make_shared<stmt::Expression>(increment)})
+    );
+  }
+
+  if (condition == nullptr) {
+    condition = make_shared<expr::Literal>(expr::Literal(true));
+  }
+
+  body = make_shared<stmt::While>(
+    stmt::While(condition, body, nullptr)
+  );
+
+  if (initializer != nullptr) {
+    body = make_shared<stmt::Block>(
+      stmt::Block({initializer, body})
+    );
+  }
+
+  return body;
 }
 
 vector<shared_ptr<stmt::Stmt>> Parser::block() {

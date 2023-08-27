@@ -170,7 +170,10 @@ def main() -> None:
                     "std::shared_ptr<Stmt> then_branch, " +
                     "std::shared_ptr<Stmt> else_branch",
         "Print      with std::shared_ptr<expr::Expr> expression",
-        "Var        with Token name, std::shared_ptr<expr::Expr> initializer"
+        "Var        with Token name, std::shared_ptr<expr::Expr> initializer",
+        "While      with std::shared_ptr<expr::Expr> condition, " + 
+                    "std::shared_ptr<Stmt> then_branch, " +
+                    "std::shared_ptr<Stmt> else_branch"
         ])
 
 
