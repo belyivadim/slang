@@ -48,9 +48,32 @@ shared_ptr<stmt::Stmt> Parser::var_declaration() {
   return make_shared<stmt::Var>(stmt::Var(name, initializer));
 }
 
+shared_ptr<stmt::Fn> Parser::function(const string& kind) {
+  auto& name = consume(IDENTIFIER, "Expect " + kind + " name.");
+  consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+
+  vector<Token> params;
+  if (!check(RIGHT_PAREN)) {
+    do {
+      if (params.size() >= 255) {
+        m_reporter->error(peek(), "Cannot have more than 255 parameters.");
+      }
+
+      params.push_back(consume(IDENTIFIER, "Expect parameter name."));
+    } while(match({COMMA}));
+  }
+
+  consume(RIGHT_PAREN, "Expect ')' after parameters.");
+  consume(LEFT_BRACE, "Expect '{' before " + kind + "body.");
+
+  vector<shared_ptr<stmt::Stmt>> body = block();
+  return make_shared<stmt::Fn>(stmt::Fn(name, params, body));
+}
+
 shared_ptr<stmt::Stmt> Parser::statement() {
   if (match({FOR})) return for_statement();
   if (match({IF})) return if_statement();
+  if (match({FN})) return function("function");
   if (match({PRINT})) return print_statement();
   if (match({WHILE})) return while_statement();
   if (match({LEFT_BRACE})) 
@@ -253,7 +276,39 @@ shared_ptr<expr::Expr> Parser::unary() {
     return make_shared<expr::Unary>(expr::Unary(oper, right));
   }
 
-  return primary();
+  return call();
+}
+
+
+shared_ptr<expr::Expr> Parser::call() {
+  auto expr = primary();
+
+  while (true) {
+    if (match({LEFT_PAREN})) {
+      expr = finish_call(expr);
+    } else {
+      break;
+    }
+  }
+
+  return expr;
+}
+
+shared_ptr<expr::Expr> Parser::finish_call(shared_ptr<expr::Expr>& callee) {
+  vector<shared_ptr<expr::Expr>> args;
+
+  if (!check(RIGHT_PAREN)) {
+    do {
+      if (args.size() >= 255) {
+        m_reporter->error(peek(), "Can't have more than 255 arguments.");
+      }
+      args.push_back(expression());
+    } while (match({COMMA}));
+  }
+
+  auto& paren = consume(RIGHT_PAREN, "Exprect ')' after arguments.");
+
+  return make_shared<expr::Call>(expr::Call(callee, paren, args));
 }
 
 shared_ptr<expr::Expr> Parser::primary() {

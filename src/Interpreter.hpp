@@ -22,7 +22,7 @@ public:
   Interpreter(std::shared_ptr<ErrorReporter> reporter);
   Interpreter(Interpreter &&) = default;
   Interpreter(const Interpreter &) = delete;
-  Interpreter &operator=(Interpreter &&) = default;
+  Interpreter &operator=(Interpreter &&) = delete;
   Interpreter &operator=(const Interpreter &) = delete;
   ~Interpreter() = default;
 
@@ -33,6 +33,7 @@ public:
   void visitVariableExpr(expr::Variable &expr) override;
   void visitAssignExpr(expr::Assign &expr) override;
   void visitLogicalExpr(expr::Logical &expr) override;
+  void visitCallExpr(expr::Call &expr) override;
 
   void visitExpressionStmt(stmt::Expression &stmt) override;
   void visitPrintStmt(stmt::Print &stmt) override;
@@ -40,18 +41,25 @@ public:
   void visitBlockStmt(stmt::Block &stmt) override;
   void visitIfStmt(stmt::If &stmt) override;
   void visitWhileStmt(stmt::While &stmt) override;
+  void visitFnStmt(stmt::Fn &stmt) override;
 
   void interpret(vector<shared_ptr<stmt::Stmt>>& statements);
+  Environment* get_global_environment() { return m_global.get(); }
+
+  void executeBlock(vector<shared_ptr<stmt::Stmt>>& statements,
+                    Environment* env);
+
 private:
   shared_ptr<ErrorReporter> m_reporter;
-  unique_ptr<Environment> m_env;
+
+  unique_ptr<Environment> m_global;
+  Environment* m_env;
+
 
   Object evaluate(expr::Expr& expr);
   bool is_truthy(const Object& obj);
   
   void execute(stmt::Stmt& statement);
-  void executeBlock(vector<shared_ptr<stmt::Stmt>>& statements,
-                    unique_ptr<Environment> env);
 
 };
 

@@ -40,6 +40,7 @@ private:
 
   shared_ptr<stmt::Stmt> declaration();
   shared_ptr<stmt::Stmt> var_declaration();
+  shared_ptr<stmt::Fn> function(const string& kind);
   shared_ptr<stmt::Stmt> statement();
   shared_ptr<stmt::Stmt> if_statement();
   shared_ptr<stmt::Stmt> while_statement();
@@ -57,6 +58,7 @@ private:
   shared_ptr<expr::Expr> term();
   shared_ptr<expr::Expr> factor();
   shared_ptr<expr::Expr> unary();
+  shared_ptr<expr::Expr> call();
   shared_ptr<expr::Expr> primary();
 
   bool match(const vector<TokenType>& types);
@@ -68,6 +70,8 @@ private:
 
   const Token& consume(TokenType type, const string& msg);
   ParserError error(const Token& token, const string& msg);
+
+  shared_ptr<expr::Expr> finish_call(shared_ptr<expr::Expr>& callee);
 
   void sync();
 

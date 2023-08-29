@@ -148,11 +148,13 @@ def main() -> None:
 
     output_dir = sys.argv[1]
     define_ast(output_dir, "Expr",
-        ["memory"],
+        ["memory", "vector"],
         ["Token.hpp"],
         [
         "Assign     with Token name, std::shared_ptr<Expr> value",
         "Binary     with std::shared_ptr<Expr> left, Token oper, std::shared_ptr<Expr> right",
+        "Call       with std::shared_ptr<Expr> callee, Token paren, " + 
+                    "std::vector<std::shared_ptr<Expr>> args",
         "Grouping   with std::shared_ptr<Expr> expression",
         "Literal    with Object value",
         "Logical    with std::shared_ptr<Expr> left, Token oper, std::shared_ptr<Expr> right",
@@ -169,6 +171,8 @@ def main() -> None:
         "If         with std::shared_ptr<expr::Expr> condition, " + 
                     "std::shared_ptr<Stmt> then_branch, " +
                     "std::shared_ptr<Stmt> else_branch",
+        "Fn         with Token name, std::vector<Token> params, " +
+                    "std::vector<std::shared_ptr<Stmt>> body",
         "Print      with std::shared_ptr<expr::Expr> expression",
         "Var        with Token name, std::shared_ptr<expr::Expr> initializer",
         "While      with std::shared_ptr<expr::Expr> condition, " + 

@@ -2,6 +2,7 @@
 #define __SLANG_EXPR_HPP__
 
 #include <memory>
+#include <vector>
 
 #include "Token.hpp"
 
@@ -11,6 +12,7 @@ namespace expr {
 
 class Assign;
 class Binary;
+class Call;
 class Grouping;
 class Literal;
 class Logical;
@@ -28,6 +30,7 @@ public:
 
   virtual void visitAssignExpr(Assign& expr) = 0;
   virtual void visitBinaryExpr(Binary& expr) = 0;
+  virtual void visitCallExpr(Call& expr) = 0;
   virtual void visitGroupingExpr(Grouping& expr) = 0;
   virtual void visitLiteralExpr(Literal& expr) = 0;
   virtual void visitLogicalExpr(Logical& expr) = 0;
@@ -117,6 +120,31 @@ public:
   std::shared_ptr<Expr> m_left;
   Token m_oper;
   std::shared_ptr<Expr> m_right;
+
+};
+
+class Call : public Expr {
+public:
+  Call(const std::shared_ptr<Expr>& callee, const Token& paren, const std::vector<std::shared_ptr<Expr>>& args) :
+    Expr(),
+    m_callee(callee),
+    m_paren(paren),
+    m_args(args)
+  {}
+
+  Call(const Call&) = default;
+  Call(Call&&) = default;
+  Call& operator=(const Call&) = default;
+  Call& operator=(Call&&) = default;
+  virtual ~Call() = default;
+
+  void accept(IVisitor& visitor) override {
+    visitor.visitCallExpr(*this);
+  }
+
+  std::shared_ptr<Expr> m_callee;
+  Token m_paren;
+  std::vector<std::shared_ptr<Expr>> m_args;
 
 };
 

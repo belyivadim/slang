@@ -1,7 +1,10 @@
 #include <iostream>
 
+#include "ICallable.hpp"
 #include "RuntimeError.hpp"
 #include "Interpreter.hpp"
+#include "SlangFn.hpp"
+#include "native_fn/Clock.hpp"
 
 
 namespace slang {
@@ -26,8 +29,12 @@ static void check_number_operands(const Token& operator_,
 // ------------------------ | PUBLIC |
 Interpreter::Interpreter(std::shared_ptr<ErrorReporter> reporter)
   : m_reporter(reporter),
-  m_env(std::make_unique<Environment>(Environment{})) 
-{}
+    m_global(std::make_unique<Environment>(Environment{})),
+    m_env(m_global.get())
+{
+  m_global->define("clock", 
+                   std::make_shared<native_fn::Clock>(native_fn::Clock{}));
+}
 
 
 void Interpreter::interpret(vector<shared_ptr<stmt::Stmt>>& statements) {
@@ -153,6 +160,27 @@ void Interpreter::visitLogicalExpr(expr::Logical &expr) {
   Return(evaluate(*expr.m_right));
 }
 
+void Interpreter::visitCallExpr(expr::Call &expr){
+  auto callee = evaluate(*expr.m_callee);
+
+  vector<Object> args;
+  for (auto& arg : expr.m_args) {
+    args.push_back(evaluate(*arg));
+  }
+
+  if (auto fn = *(std::get_if<shared_ptr<ICallable>>(&callee))) {
+    if (args.size() != fn->arity()) {
+      throw RuntimeError(expr.m_paren, "Expected " + 
+                         std::to_string(fn->arity()) + "arguments, but got " + 
+                         std::to_string(args.size()) + ".");
+    }
+
+    Return(fn->call(*this, args));
+  } else {
+    throw RuntimeError(expr.m_paren, "Can only call functions.");
+  }
+} 
+
 void Interpreter::visitExpressionStmt(stmt::Expression &stmt) {
   evaluate(*stmt.m_expression);
 }
@@ -173,8 +201,8 @@ void Interpreter::visitVarStmt(stmt::Var& stmt) {
 
 
 void Interpreter::visitBlockStmt(stmt::Block &stmt) {
-  executeBlock(stmt.m_statements,
-               std::make_unique<Environment>(Environment(&*m_env)));
+  auto env = std::make_unique<Environment>(Environment(m_env));
+  executeBlock(stmt.m_statements, env.get());
 }
 
 void Interpreter::visitIfStmt(stmt::If &stmt) {
@@ -194,6 +222,12 @@ void Interpreter::visitWhileStmt(stmt::While &stmt) {
   } else if (stmt.m_else_branch != nullptr) {
     execute(*stmt.m_else_branch);
   }
+}
+
+
+void Interpreter::visitFnStmt(stmt::Fn &stmt) {
+  auto fn = std::make_shared<SlangFn>(SlangFn(stmt)); 
+  m_env->define(stmt.m_name.m_lexeme, fn);
 }
 
 // ------------------------ | PRIVATE |
@@ -220,28 +254,28 @@ void Interpreter::execute(stmt::Stmt& statement) {
 
 void Interpreter::executeBlock(
     vector<shared_ptr<stmt::Stmt>>& statements,
-    std::unique_ptr<Environment> env
+    Environment* env
 ) {
 
   /// Stores environment @env and restore it on destruction
   class RaiiEnv {
   public:
-    explicit RaiiEnv(unique_ptr<Environment>& env)
+    explicit RaiiEnv(Environment** env)
       : m_env_to_restore(env),
-        m_prev(std::move(env)) {}
+        m_prev(*env) {}
 
     ~RaiiEnv() {
-      m_env_to_restore = std::move(m_prev);
+      *m_env_to_restore = m_prev;
     }
 
   private:
-    unique_ptr<Environment>& m_env_to_restore;
-    unique_ptr<Environment> m_prev;
+    Environment** m_env_to_restore;
+    Environment* m_prev;
   };
 
 
-  RaiiEnv e(m_env);
-  m_env = std::move(env);
+  RaiiEnv e(&m_env);
+  m_env = env;
   for (auto& s : statements) {
     execute(*s);
   }

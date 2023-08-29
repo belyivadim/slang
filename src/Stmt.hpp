@@ -14,6 +14,7 @@ namespace stmt {
 class Block;
 class Expression;
 class If;
+class Fn;
 class Print;
 class Var;
 class While;
@@ -30,6 +31,7 @@ public:
   virtual void visitBlockStmt(Block& stmt) = 0;
   virtual void visitExpressionStmt(Expression& stmt) = 0;
   virtual void visitIfStmt(If& stmt) = 0;
+  virtual void visitFnStmt(Fn& stmt) = 0;
   virtual void visitPrintStmt(Print& stmt) = 0;
   virtual void visitVarStmt(Var& stmt) = 0;
   virtual void visitWhileStmt(While& stmt) = 0;
@@ -136,6 +138,31 @@ public:
   std::shared_ptr<expr::Expr> m_condition;
   std::shared_ptr<Stmt> m_then_branch;
   std::shared_ptr<Stmt> m_else_branch;
+
+};
+
+class Fn : public Stmt {
+public:
+  Fn(const Token& name, const std::vector<Token>& params, const std::vector<std::shared_ptr<Stmt>>& body) :
+    Stmt(),
+    m_name(name),
+    m_params(params),
+    m_body(body)
+  {}
+
+  Fn(const Fn&) = default;
+  Fn(Fn&&) = default;
+  Fn& operator=(const Fn&) = default;
+  Fn& operator=(Fn&&) = default;
+  virtual ~Fn() = default;
+
+  void accept(IVisitor& visitor) override {
+    visitor.visitFnStmt(*this);
+  }
+
+  Token m_name;
+  std::vector<Token> m_params;
+  std::vector<std::shared_ptr<Stmt>> m_body;
 
 };
 
