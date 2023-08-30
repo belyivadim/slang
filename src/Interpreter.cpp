@@ -168,14 +168,15 @@ void Interpreter::visitCallExpr(expr::Call &expr){
     args.push_back(evaluate(*arg));
   }
 
-  if (auto fn = *(std::get_if<shared_ptr<ICallable>>(&callee))) {
-    if (args.size() != fn->arity()) {
+  if (std::shared_ptr<ICallable> *fn = 
+    (std::get_if<shared_ptr<ICallable>>(&callee))) {
+    if (args.size() != fn->get()->arity()) {
       throw RuntimeError(expr.m_paren, "Expected " + 
-                         std::to_string(fn->arity()) + "arguments, but got " + 
+                         std::to_string(fn->get()->arity()) + " arguments, but got " + 
                          std::to_string(args.size()) + ".");
     }
 
-    Return(fn->call(*this, args));
+    Return(fn->get()->call(*this, args));
   } else {
     throw RuntimeError(expr.m_paren, "Can only call functions.");
   }
