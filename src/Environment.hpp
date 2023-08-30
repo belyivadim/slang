@@ -13,7 +13,7 @@ namespace slang {
 class Environment {
 public:
   Environment() = default;
-  explicit Environment(Environment* enclosing)
+  explicit Environment(std::shared_ptr<Environment> enclosing)
     : m_enclosing(enclosing) {}
 
   Environment(Environment &&) = default;
@@ -37,7 +37,7 @@ public:
   }
 
 private:
-  Environment* m_enclosing{nullptr};
+  std::shared_ptr<Environment> m_enclosing{nullptr};
   std::unordered_map<std::string, Object> variables{};
 
 

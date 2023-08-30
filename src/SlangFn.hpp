@@ -8,9 +8,9 @@ namespace slang {
 
 class SlangFn : public ICallable {
 public:
-  SlangFn(stmt::Fn& declaration);
+  SlangFn(stmt::Fn& declaration, std::shared_ptr<Environment> closure);
   SlangFn(SlangFn &&) = default;
-  SlangFn(const SlangFn &) = default;
+  SlangFn(const SlangFn &) = delete;
   SlangFn &operator=(SlangFn &&) = delete;
   SlangFn &operator=(const SlangFn &) = delete;
   ~SlangFn() = default;
@@ -23,6 +23,7 @@ public:
 
 private:
   stmt::Fn& m_declaration;
+  std::shared_ptr<Environment> m_closure;
   
 };
 

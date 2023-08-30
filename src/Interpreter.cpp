@@ -30,7 +30,7 @@ static void check_number_operands(const Token& operator_,
 Interpreter::Interpreter(std::shared_ptr<ErrorReporter> reporter)
   : m_reporter(reporter),
     m_global(std::make_unique<Environment>(Environment{})),
-    m_env(m_global.get())
+    m_env(m_global)
 {
   m_global->define("clock", 
                    std::make_shared<native_fn::Clock>(native_fn::Clock{}));
@@ -202,8 +202,8 @@ void Interpreter::visitVarStmt(stmt::Var& stmt) {
 
 
 void Interpreter::visitBlockStmt(stmt::Block &stmt) {
-  auto env = std::make_unique<Environment>(Environment(m_env));
-  executeBlock(stmt.m_statements, env.get());
+  auto env = std::make_shared<Environment>(Environment(m_env));
+  executeBlock(stmt.m_statements, env);
 }
 
 void Interpreter::visitIfStmt(stmt::If &stmt) {
@@ -227,7 +227,7 @@ void Interpreter::visitWhileStmt(stmt::While &stmt) {
 
 
 void Interpreter::visitFnStmt(stmt::Fn &stmt) {
-  auto fn = std::make_shared<SlangFn>(SlangFn(stmt)); 
+  auto fn = std::make_shared<SlangFn>(SlangFn(stmt, m_env)); 
   m_env->define(stmt.m_name.m_lexeme, fn);
 }
 
@@ -264,28 +264,28 @@ void Interpreter::execute(stmt::Stmt& statement) {
 
 void Interpreter::executeBlock(
     vector<shared_ptr<stmt::Stmt>>& statements,
-    Environment* env
+    std::shared_ptr<Environment>& env
 ) {
 
   /// Stores environment @env and restore it on destruction
   class RaiiEnv {
   public:
-    explicit RaiiEnv(Environment** env)
+    explicit RaiiEnv(shared_ptr<Environment>& env)
       : m_env_to_restore(env),
-        m_prev(*env) {}
+        m_prev(std::move(env)) {}
 
     ~RaiiEnv() {
-      *m_env_to_restore = m_prev;
+      m_env_to_restore = std::move(m_prev);
     }
 
   private:
-    Environment** m_env_to_restore;
-    Environment* m_prev;
+    shared_ptr<Environment>& m_env_to_restore;
+    shared_ptr<Environment> m_prev;
   };
 
 
-  RaiiEnv e(&m_env);
-  m_env = env;
+  RaiiEnv e(m_env);
+  m_env = std::move(env);
   for (auto& s : statements) {
     execute(*s);
   }
