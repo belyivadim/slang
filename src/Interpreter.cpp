@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "ICallable.hpp"
-#include "RuntimeError.hpp"
+#include "InterpreterExceptions.hpp"
 #include "Interpreter.hpp"
 #include "SlangFn.hpp"
 #include "native_fn/Clock.hpp"
@@ -229,6 +229,15 @@ void Interpreter::visitWhileStmt(stmt::While &stmt) {
 void Interpreter::visitFnStmt(stmt::Fn &stmt) {
   auto fn = std::make_shared<SlangFn>(SlangFn(stmt)); 
   m_env->define(stmt.m_name.m_lexeme, fn);
+}
+
+void Interpreter::visitReturnStmt(stmt::Return &stmt) {
+  Object ret = nullptr;
+  if (stmt.m_value != nullptr) {
+    ret = evaluate(*stmt.m_value);
+  }
+
+  throw ReturnExc(ret);
 }
 
 // ------------------------ | PRIVATE |

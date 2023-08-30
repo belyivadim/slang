@@ -174,6 +174,7 @@ def main() -> None:
         "Fn         with Token name, std::vector<Token> params, " +
                     "std::vector<std::shared_ptr<Stmt>> body",
         "Print      with std::shared_ptr<expr::Expr> expression",
+        "Return     with Token keyword, std::shared_ptr<expr::Expr> value",
         "Var        with Token name, std::shared_ptr<expr::Expr> initializer",
         "While      with std::shared_ptr<expr::Expr> condition, " + 
                     "std::shared_ptr<Stmt> then_branch, " +

@@ -5,7 +5,7 @@
 #include <sstream>
 #include <string>
 
-#include "RuntimeError.hpp"
+#include "InterpreterExceptions.hpp"
 #include "Token.hpp"
 
 namespace slang {

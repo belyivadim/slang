@@ -1,4 +1,5 @@
 #include "SlangFn.hpp"
+#include "InterpreterExceptions.hpp"
 
 namespace slang {
 
@@ -14,7 +15,12 @@ Object SlangFn::call(Interpreter &interpreter, std::vector<Object> &args) {
     env->define(m_declaration.m_params[i].m_lexeme, args[i]);
   }
 
-  interpreter.executeBlock(m_declaration.m_body, env.get());
+  try {
+    interpreter.executeBlock(m_declaration.m_body, env.get());
+  } catch (ReturnExc& ret) {
+    return ret.m_value;
+  }
+
   return nullptr;
 }
 

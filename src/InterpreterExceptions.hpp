@@ -1,5 +1,5 @@
-#ifndef __SLANG_RUNTIME_ERROR_HPP__
-#define __SLANG_RUNTIME_ERROR_HPP__
+#ifndef __SLANG_INTERPRETER_EXCEPTIONS_HPP__
+#define __SLANG_INTERPRETER_EXCEPTIONS_HPP__
 
 #include <stdexcept>
 
@@ -23,6 +23,21 @@ public:
 
 };
 
+class ReturnExc : public std::runtime_error {
+public:
+  ReturnExc(const Object& value) 
+    : std::runtime_error(""), m_value(value) {}
+
+  ReturnExc(ReturnExc &&) = default;
+  ReturnExc(const ReturnExc &) = default;
+  ReturnExc &operator=(ReturnExc &&) = default;
+  ReturnExc &operator=(const ReturnExc &) = default;
+  ~ReturnExc() = default;
+
+  Object m_value;
+  
+};
+
 } // namespace slang
 
-#endif // __SLANG_RUNTIME_ERROR_HPP__
+#endif // __SLANG_INTERPRETER_EXCEPTIONS_HPP__

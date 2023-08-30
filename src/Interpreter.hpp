@@ -42,6 +42,7 @@ public:
   void visitIfStmt(stmt::If &stmt) override;
   void visitWhileStmt(stmt::While &stmt) override;
   void visitFnStmt(stmt::Fn &stmt) override;
+  void visitReturnStmt(stmt::Return &stmt) override;
 
   void interpret(vector<shared_ptr<stmt::Stmt>>& statements);
   Environment* get_global_environment() { return m_global.get(); }

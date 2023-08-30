@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <string>
 
-#include "RuntimeError.hpp"
+#include "InterpreterExceptions.hpp"
 #include "Token.hpp"
 
 namespace slang {

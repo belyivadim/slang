@@ -16,6 +16,7 @@ class Expression;
 class If;
 class Fn;
 class Print;
+class Return;
 class Var;
 class While;
 
@@ -33,6 +34,7 @@ public:
   virtual void visitIfStmt(If& stmt) = 0;
   virtual void visitFnStmt(Fn& stmt) = 0;
   virtual void visitPrintStmt(Print& stmt) = 0;
+  virtual void visitReturnStmt(Return& stmt) = 0;
   virtual void visitVarStmt(Var& stmt) = 0;
   virtual void visitWhileStmt(While& stmt) = 0;
 };
@@ -184,6 +186,29 @@ public:
   }
 
   std::shared_ptr<expr::Expr> m_expression;
+
+};
+
+class Return : public Stmt {
+public:
+  Return(const Token& keyword, const std::shared_ptr<expr::Expr>& value) :
+    Stmt(),
+    m_keyword(keyword),
+    m_value(value)
+  {}
+
+  Return(const Return&) = default;
+  Return(Return&&) = default;
+  Return& operator=(const Return&) = default;
+  Return& operator=(Return&&) = default;
+  virtual ~Return() = default;
+
+  void accept(IVisitor& visitor) override {
+    visitor.visitReturnStmt(*this);
+  }
+
+  Token m_keyword;
+  std::shared_ptr<expr::Expr> m_value;
 
 };
 
