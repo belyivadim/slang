@@ -48,13 +48,13 @@ public:
   Environment* get_global_environment() { return m_global.get(); }
 
   void executeBlock(vector<shared_ptr<stmt::Stmt>>& statements,
-                    std::shared_ptr<Environment>& env);
+                    Environment *env);
 
 private:
   shared_ptr<ErrorReporter> m_reporter;
 
-  shared_ptr<Environment> m_global;
-  shared_ptr<Environment> m_env;
+  unique_ptr<Environment> m_global;
+  Environment* m_env;
 
 
   Object evaluate(expr::Expr& expr);
