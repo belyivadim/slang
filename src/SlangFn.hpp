@@ -9,7 +9,7 @@ namespace slang {
 class SlangFn : public ICallable {
 public:
   SlangFn(stmt::Fn& declaration, std::unique_ptr<Environment> closure);
-  SlangFn(SlangFn &&) = default;
+  SlangFn(SlangFn &&);
   SlangFn(const SlangFn &) = delete;
   SlangFn &operator=(SlangFn &&) = delete;
   SlangFn &operator=(const SlangFn &) = delete;

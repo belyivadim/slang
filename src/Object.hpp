@@ -9,7 +9,7 @@ namespace slang {
 
 class ICallable;
 
-using Object = std::variant<double, bool, std::string, std::shared_ptr<ICallable>, std::nullptr_t>;
+using Object = std::variant<double, bool, std::string, std::shared_ptr<ICallable>, ICallable*, std::nullptr_t>;
 
 std::string object_to_string(const Object& obj);
 

@@ -163,20 +163,26 @@ void Interpreter::visitLogicalExpr(expr::Logical &expr) {
 void Interpreter::visitCallExpr(expr::Call &expr){
   auto callee = evaluate(*expr.m_callee);
 
-  vector<Object> args;
-  for (auto& arg : expr.m_args) {
-    args.push_back(evaluate(*arg));
+  ICallable *fn = nullptr;
+  if (auto *f = std::get_if<shared_ptr<ICallable>>(&callee)) {
+    fn = f->get();
+  } else if (ICallable **f = std::get_if<ICallable*>(&callee)) {
+    fn = *f;
   }
 
-  if (std::shared_ptr<ICallable> *fn = 
-    (std::get_if<shared_ptr<ICallable>>(&callee))) {
-    if (args.size() != fn->get()->arity()) {
+  if (fn != nullptr) {
+    if (expr.m_args.size() != fn->arity()) {
       throw RuntimeError(expr.m_paren, "Expected " + 
-                         std::to_string(fn->get()->arity()) + " arguments, but got " + 
-                         std::to_string(args.size()) + ".");
+                         std::to_string(fn->arity()) + " arguments, but got " + 
+                         std::to_string(expr.m_args.size()) + ".");
     }
 
-    Return(fn->get()->call(*this, args));
+    vector<Object> args;
+    for (auto& arg : expr.m_args) {
+      args.push_back(evaluate(*arg));
+    }
+
+    Return(fn->call(*this, args));
   } else {
     throw RuntimeError(expr.m_paren, "Can only call functions.");
   }
