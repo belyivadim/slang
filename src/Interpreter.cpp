@@ -47,6 +47,9 @@ void Interpreter::interpret(vector<shared_ptr<stmt::Stmt>>& statements) {
   }
 }
 
+void Interpreter::resolve(expr::Expr& expr, int depth) {
+  m_locals.insert({&expr, depth});
+}
 
 void Interpreter::visitUnaryExpr(expr::Unary &expr) {
   Object right = evaluate(*expr.m_right);
@@ -133,11 +136,19 @@ void Interpreter::visitGroupingExpr(expr::Grouping &expr) {
 }
 
 void Interpreter::visitVariableExpr(expr::Variable &expr) {
-  Return(m_env->get_variable(expr.m_name));
+  Return(lookup_variable(expr.m_name, expr));
 }
 
 void Interpreter::visitAssignExpr(expr::Assign &expr) {
   auto value = evaluate(*expr.m_value);
+
+  auto distance = m_locals.find(&expr);
+  if (distance != m_locals.end()) {
+    m_env->assign_at(distance->second, expr.m_name, value);
+  } else {
+    m_global->assign(expr.m_name, value);
+  }
+
   m_env->assign(expr.m_name, value);
   Return(value);
 }
@@ -296,6 +307,17 @@ void Interpreter::executeBlock(
   m_env = env;
   for (auto& s : statements) {
     execute(*s);
+  }
+}
+
+
+Object Interpreter::lookup_variable(const Token& name, expr::Expr& expr) {
+  auto distance = m_locals.find(&expr);
+
+  if (distance != m_locals.end()) {
+    return m_env->get_variable_at(distance->second, name.m_lexeme);
+  } else {
+    return m_global->get_variable(name);
   }
 }
 

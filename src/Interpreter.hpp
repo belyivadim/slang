@@ -12,6 +12,7 @@
 namespace slang {
 
 using std::vector;
+using std::unordered_map;
 using std::shared_ptr;
 using std::unique_ptr;
 
@@ -50,17 +51,23 @@ public:
   void executeBlock(vector<shared_ptr<stmt::Stmt>>& statements,
                     Environment *env);
 
+  void resolve(expr::Expr& expr, int depth);
+
 private:
   shared_ptr<ErrorReporter> m_reporter;
 
   unique_ptr<Environment> m_global;
   Environment* m_env;
 
+  unordered_map<expr::Expr*, int> m_locals{};
+
 
   Object evaluate(expr::Expr& expr);
   bool is_truthy(const Object& obj);
   
   void execute(stmt::Stmt& statement);
+
+  Object lookup_variable(const Token& name, expr::Expr& expr);
 
 };
 

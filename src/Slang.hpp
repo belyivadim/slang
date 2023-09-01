@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 
+#include "Resolver.hpp"
 #include "Scanner.hpp"
 #include "Parser.hpp"
 #include "AstPrinter.hpp"
@@ -65,6 +66,14 @@ private:
     //std::cout << printer.print(statements) << std::endl;
 
     Interpreter interpreter(m_reporter);
+    Resolver resolver(interpreter, m_reporter);
+
+    resolver.resolve(statements);
+
+    if (m_reporter->has_error()) {
+      return 65;
+    }
+
     interpreter.interpret(statements);
 
     return m_reporter->has_runtime_error() * 70;

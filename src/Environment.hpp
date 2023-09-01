@@ -31,9 +31,17 @@ public:
     found->second = value;
   }
 
+  void assign_at(int distance, const Token& name, const Object& value) {
+    ancestor(distance)->variables.insert({name.m_lexeme, value});
+  }
+
   Object& get_variable(const Token& name) {
     auto found = get_iter(name);
     return found->second;
+  }
+
+  Object& get_variable_at(int depth, const std::string& name) {
+    return ancestor(depth)->variables[name];
   }
 
 private:
@@ -55,6 +63,15 @@ private:
     }
 
     throw RuntimeError(name, "Undefined variable '" + name.m_lexeme + "'.");
+  }
+
+  Environment* ancestor(int distance) {
+    Environment *env = this;
+    for (int i = 0; i < distance; ++i) {
+      env = env->m_enclosing;
+    }
+
+    return env;
   }
 
 };
