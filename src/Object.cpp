@@ -2,6 +2,8 @@
 
 #include "Object.hpp"
 #include "ICallable.hpp"
+#include "SlangClass.hpp"
+#include "SlangInstance.hpp"
 
 namespace slang {
 
@@ -16,7 +18,10 @@ std::string object_to_string(const Object& obj) {
     }
 
     return str;
+
   } else if (const std::shared_ptr<ICallable> * pval = std::get_if<std::shared_ptr<ICallable>>(&obj)) {
+    return pval->get()->to_string();
+  } else if (const auto pval = std::get_if<std::shared_ptr<SlangInstance>>(&obj)) {
     return pval->get()->to_string();
   } else if (const bool * pval = std::get_if<bool>(&obj)) {
     return *pval ? "true" : "false";

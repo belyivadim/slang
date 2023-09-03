@@ -35,12 +35,15 @@ public:
   void visitAssignExpr(expr::Assign &expr) override;
   void visitLogicalExpr(expr::Logical &expr) override;
   void visitCallExpr(expr::Call &expr) override;
+  void visitGetExpr(expr::Get &expr) override;
+  void visitSetExpr(expr::Set &expr) override;
 
   void visitExpressionStmt(stmt::Expression &stmt) override;
   void visitPrintStmt(stmt::Print &stmt) override;
   void visitVarStmt(stmt::Var &stmt) override;
   void visitBlockStmt(stmt::Block &stmt) override;
   void visitBreakStmt(stmt::Break &stmt) override;
+  void visitClassStmt(stmt::Class &stmt) override;
   void visitIfStmt(stmt::If &stmt) override;
   void visitWhileStmt(stmt::While &stmt) override;
   void visitFnStmt(stmt::Fn &stmt) override;

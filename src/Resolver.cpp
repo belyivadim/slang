@@ -71,6 +71,11 @@ void Resolver::visitBreakStmt(stmt::Break &stmt) {
   }
 }
 
+void Resolver::visitClassStmt(stmt::Class &stmt) {
+  declare(stmt.m_name);
+  define(stmt.m_name);
+}
+
 void Resolver::visitVariableExpr(expr::Variable &expr) {
   if (!m_scopes.empty()) {
     for (auto it = m_scopes.rbegin(); it != m_scopes.rend(); ++it) {
@@ -123,6 +128,15 @@ void Resolver::visitUnaryExpr(expr::Unary &expr) {
   resolve(*expr.m_right);
 }
 
+
+void Resolver::visitGetExpr(expr::Get &expr) {
+  resolve(*expr.m_object);
+}
+
+void Resolver::visitSetExpr(expr::Set &expr) {
+  resolve(*expr.m_value);
+  resolve(*expr.m_object);
+}
 
 
 // ------------------------ | PRIVATE |

@@ -32,6 +32,7 @@ public:
   void visitReturnStmt(stmt::Return &stmt) override;
   void visitWhileStmt(stmt::While &stmt) override;
   void visitBreakStmt(stmt::Break &stmt) override;
+  void visitClassStmt(stmt::Class &stmt) override;
 
   void visitVariableExpr(expr::Variable &expr) override;
   void visitAssignExpr(expr::Assign &expr) override;
@@ -41,6 +42,8 @@ public:
   void visitLiteralExpr(expr::Literal &expr) override;
   void visitLogicalExpr(expr::Logical &expr) override;
   void visitUnaryExpr(expr::Unary &expr) override;
+  void visitGetExpr(expr::Get &expr) override;
+  void visitSetExpr(expr::Set &expr) override;
 
   void resolve(vector<shared_ptr<stmt::Stmt>>& statements);
 

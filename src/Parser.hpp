@@ -40,6 +40,7 @@ private:
 
   shared_ptr<stmt::Stmt> declaration();
   shared_ptr<stmt::Stmt> var_declaration();
+  shared_ptr<stmt::Stmt> class_declaration();
   shared_ptr<stmt::Fn> function(const string& kind);
   shared_ptr<stmt::Stmt> statement();
   shared_ptr<stmt::Stmt> break_statement();

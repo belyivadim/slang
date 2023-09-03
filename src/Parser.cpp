@@ -48,6 +48,20 @@ shared_ptr<stmt::Stmt> Parser::var_declaration() {
   return make_shared<stmt::Var>(stmt::Var(name, initializer));
 }
 
+shared_ptr<stmt::Stmt> Parser::class_declaration() {
+  auto& name = consume(IDENTIFIER, "Expect class name.");
+  consume(LEFT_BRACE, "Expect '{' before class body.");
+
+  vector<shared_ptr<stmt::Fn>> methods;
+  while (!check(RIGHT_BRACE) && !is_at_end()) {
+    methods.push_back(function("method"));
+  }
+
+  consume(RIGHT_BRACE, "Expect '}' after class body.");
+
+  return make_shared<stmt::Class>(stmt::Class(name, methods));
+}
+
 shared_ptr<stmt::Fn> Parser::function(const string& kind) {
   auto& name = consume(IDENTIFIER, "Expect " + kind + " name.");
   consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
@@ -85,6 +99,7 @@ shared_ptr<stmt::Fn> Parser::function(const string& kind) {
 
 shared_ptr<stmt::Stmt> Parser::statement() {
   if (match({BREAK})) return break_statement();
+  if (match({CLASS})) return class_declaration();
   if (match({FOR})) return for_statement();
   if (match({FN})) return function("function");
   if (match({IF})) return if_statement();
@@ -224,6 +239,10 @@ shared_ptr<expr::Expr> Parser::assigment() {
       return make_shared<expr::Assign>(name, value);
     }
 
+    if (auto get = dynamic_cast<expr::Get*>(expr.get())) {
+      return make_shared<expr::Set>(expr::Set(get->m_object, get->m_name, value));
+    }
+
     error(equals, "Invalid assigment target.");
   }
 
@@ -319,6 +338,9 @@ shared_ptr<expr::Expr> Parser::call() {
   while (true) {
     if (match({LEFT_PAREN})) {
       expr = finish_call(expr);
+    } else if (match({DOT})) {
+      auto& name = consume(IDENTIFIER, "Expect property name after '.'.");
+      expr = make_shared<expr::Get>(expr, name);
     } else {
       break;
     }

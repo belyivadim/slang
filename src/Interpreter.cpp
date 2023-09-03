@@ -1,6 +1,8 @@
 #include <iostream>
 
 #include "ICallable.hpp"
+#include "SlangClass.hpp"
+#include "SlangInstance.hpp"
 #include "InterpreterExceptions.hpp"
 #include "Interpreter.hpp"
 #include "SlangFn.hpp"
@@ -199,6 +201,28 @@ void Interpreter::visitCallExpr(expr::Call &expr){
   }
 } 
 
+void Interpreter::visitGetExpr(expr::Get &expr) {
+  auto obj = evaluate(*expr.m_object);
+  
+  if (auto pobj = std::get_if<shared_ptr<SlangInstance>>(&obj)) {
+    Return(pobj->get()->get_property(expr.m_name));
+  } else {
+    throw RuntimeError(expr.m_name, "Only instances have properties.");
+  }
+}
+
+void Interpreter::visitSetExpr(expr::Set &expr) {
+  auto obj = evaluate(*expr.m_object);
+
+  if (auto pobj = std::get_if<shared_ptr<SlangInstance>>(&obj)) {
+    auto value = evaluate(*expr.m_value);
+    pobj->get()->set_property(expr.m_name, value);
+    Return(value);
+  } else {
+    throw RuntimeError(expr.m_name, "Only instances have fields.");
+  }
+}
+
 void Interpreter::visitExpressionStmt(stmt::Expression &stmt) {
   evaluate(*stmt.m_expression);
 }
@@ -266,6 +290,12 @@ void Interpreter::visitReturnStmt(stmt::Return &stmt) {
 
 void Interpreter::visitBreakStmt(stmt::Break &) {
   throw BreakExc{};
+}
+
+void Interpreter::visitClassStmt(stmt::Class &stmt) {
+  m_env->define(stmt.m_name.m_lexeme, nullptr);
+  auto cls = std::make_shared<SlangClass>(SlangClass(stmt.m_name.m_lexeme));
+  m_env->assign(stmt.m_name, cls);
 }
 
 // ------------------------ | PRIVATE |

@@ -8,8 +8,13 @@
 namespace slang {
 
 class ICallable;
+class SlangClass;
+class SlangInstance;
 
-using Object = std::variant<double, bool, std::string, std::shared_ptr<ICallable>, ICallable*, std::nullptr_t>;
+using Object = std::variant<double, bool, std::string, 
+                            std::shared_ptr<ICallable>, ICallable*,
+                            std::shared_ptr<SlangInstance>,
+                            std::nullptr_t>;
 
 std::string object_to_string(const Object& obj);
 

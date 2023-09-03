@@ -155,9 +155,11 @@ def main() -> None:
         "Binary     with std::shared_ptr<Expr> left, Token oper, std::shared_ptr<Expr> right",
         "Call       with std::shared_ptr<Expr> callee, Token paren, " + 
                     "std::vector<std::shared_ptr<Expr>> args",
+        "Get        with std::shared_ptr<Expr> object, Token name",
         "Grouping   with std::shared_ptr<Expr> expression",
         "Literal    with Object value",
         "Logical    with std::shared_ptr<Expr> left, Token oper, std::shared_ptr<Expr> right",
+        "Set        with std::shared_ptr<Expr> object, Token name, std::shared_ptr<Expr> value",
         "Unary      with Token oper, std::shared_ptr<Expr> right",
         "Variable   with Token name"
         ])
@@ -167,6 +169,7 @@ def main() -> None:
         ["Token.hpp", "Expr.hpp"],
         [
         "Block      with std::vector<std::shared_ptr<Stmt>> statements",
+        "Class      with Token name, std::vector<std::shared_ptr<stmt::Fn>> methods",
         "Break      with Token keyword",
         "Expression with std::shared_ptr<expr::Expr> expression",
         "If         with std::shared_ptr<expr::Expr> condition, " + 

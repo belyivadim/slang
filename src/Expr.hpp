@@ -13,9 +13,11 @@ namespace expr {
 class Assign;
 class Binary;
 class Call;
+class Get;
 class Grouping;
 class Literal;
 class Logical;
+class Set;
 class Unary;
 class Variable;
 
@@ -31,9 +33,11 @@ public:
   virtual void visitAssignExpr(Assign& expr) = 0;
   virtual void visitBinaryExpr(Binary& expr) = 0;
   virtual void visitCallExpr(Call& expr) = 0;
+  virtual void visitGetExpr(Get& expr) = 0;
   virtual void visitGroupingExpr(Grouping& expr) = 0;
   virtual void visitLiteralExpr(Literal& expr) = 0;
   virtual void visitLogicalExpr(Logical& expr) = 0;
+  virtual void visitSetExpr(Set& expr) = 0;
   virtual void visitUnaryExpr(Unary& expr) = 0;
   virtual void visitVariableExpr(Variable& expr) = 0;
 };
@@ -148,6 +152,29 @@ public:
 
 };
 
+class Get : public Expr {
+public:
+  Get(const std::shared_ptr<Expr>& object, const Token& name) :
+    Expr(),
+    m_object(object),
+    m_name(name)
+  {}
+
+  Get(const Get&) = default;
+  Get(Get&&) = default;
+  Get& operator=(const Get&) = default;
+  Get& operator=(Get&&) = default;
+  virtual ~Get() = default;
+
+  void accept(IVisitor& visitor) override {
+    visitor.visitGetExpr(*this);
+  }
+
+  std::shared_ptr<Expr> m_object;
+  Token m_name;
+
+};
+
 class Grouping : public Expr {
 public:
   Grouping(const std::shared_ptr<Expr>& expression) :
@@ -212,6 +239,31 @@ public:
   std::shared_ptr<Expr> m_left;
   Token m_oper;
   std::shared_ptr<Expr> m_right;
+
+};
+
+class Set : public Expr {
+public:
+  Set(const std::shared_ptr<Expr>& object, const Token& name, const std::shared_ptr<Expr>& value) :
+    Expr(),
+    m_object(object),
+    m_name(name),
+    m_value(value)
+  {}
+
+  Set(const Set&) = default;
+  Set(Set&&) = default;
+  Set& operator=(const Set&) = default;
+  Set& operator=(Set&&) = default;
+  virtual ~Set() = default;
+
+  void accept(IVisitor& visitor) override {
+    visitor.visitSetExpr(*this);
+  }
+
+  std::shared_ptr<Expr> m_object;
+  Token m_name;
+  std::shared_ptr<Expr> m_value;
 
 };
 

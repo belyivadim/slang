@@ -12,6 +12,7 @@ namespace slang {
 namespace stmt {
 
 class Block;
+class Class;
 class Break;
 class Expression;
 class If;
@@ -31,6 +32,7 @@ public:
   virtual ~IVisitor() = default;
 
   virtual void visitBlockStmt(Block& stmt) = 0;
+  virtual void visitClassStmt(Class& stmt) = 0;
   virtual void visitBreakStmt(Break& stmt) = 0;
   virtual void visitExpressionStmt(Expression& stmt) = 0;
   virtual void visitIfStmt(If& stmt) = 0;
@@ -96,6 +98,29 @@ public:
   }
 
   std::vector<std::shared_ptr<Stmt>> m_statements;
+
+};
+
+class Class : public Stmt {
+public:
+  Class(const Token& name, const std::vector<std::shared_ptr<stmt::Fn>>& methods) :
+    Stmt(),
+    m_name(name),
+    m_methods(methods)
+  {}
+
+  Class(const Class&) = default;
+  Class(Class&&) = default;
+  Class& operator=(const Class&) = default;
+  Class& operator=(Class&&) = default;
+  virtual ~Class() = default;
+
+  void accept(IVisitor& visitor) override {
+    visitor.visitClassStmt(*this);
+  }
+
+  Token m_name;
+  std::vector<std::shared_ptr<stmt::Fn>> m_methods;
 
 };
 
