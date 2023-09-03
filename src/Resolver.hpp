@@ -44,15 +44,21 @@ public:
   void resolve(vector<shared_ptr<stmt::Stmt>>& statements);
 
 private:
+  enum FnType {
+    FN_NONE, FN_FUNCTION
+  };
+
+
   Interpreter& m_interpreter;
   vector<unordered_map<string, bool>> m_scopes;
   shared_ptr<ErrorReporter> m_reporter;
+  FnType m_current_fn{FN_NONE};
 
 
   void resolve(stmt::Stmt& stmt);
   void resolve(expr::Expr& expr);
   void resolve_local(expr::Expr& expr, const Token& name);
-  void resolve_function(stmt::Fn& fn);
+  void resolve_function(stmt::Fn& fn, FnType fn_type);
   void begin_scope();
   void end_scope();
   void declare(const Token& name);

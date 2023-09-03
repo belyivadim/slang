@@ -28,7 +28,7 @@ void Resolver::visitFnStmt(stmt::Fn &stmt) {
   declare(stmt.m_name);
   define(stmt.m_name);
 
-  resolve_function(stmt);
+  resolve_function(stmt, FN_FUNCTION);
 }
 
 void Resolver::visitExpressionStmt(stmt::Expression &stmt) {
@@ -48,6 +48,10 @@ void Resolver::visitPrintStmt(stmt::Print &stmt) {
 }
 
 void Resolver::visitReturnStmt(stmt::Return &stmt) {
+  if (m_current_fn == FN_NONE) {
+    m_reporter->error(stmt.m_keyword, "Can't return from top level code.");
+  }
+
   if (stmt.m_value != nullptr) {
     resolve(*stmt.m_value);
   }
@@ -138,7 +142,10 @@ void Resolver::resolve_local(expr::Expr& expr, const Token& name) {
   }
 }
 
-void Resolver::resolve_function(stmt::Fn& fn) {
+void Resolver::resolve_function(stmt::Fn& fn, FnType fn_type) {
+  FnType enclosing_fn = m_current_fn;
+  m_current_fn = fn_type;
+
   begin_scope();
 
   for (auto& param : fn.m_params) {
@@ -148,6 +155,8 @@ void Resolver::resolve_function(stmt::Fn& fn) {
   resolve(fn.m_body);
 
   end_scope();
+
+  m_current_fn = enclosing_fn;
 }
 
 void Resolver::begin_scope() {
@@ -162,6 +171,11 @@ void Resolver::declare(const Token& name) {
   if (m_scopes.empty()) return;
 
   auto& scope = m_scopes.back();
+
+  if (scope.find(name.m_lexeme) != scope.end()) {
+    m_reporter->error(name, "Already variable with this name in this scope.");
+  }
+
   scope.insert_or_assign(name.m_lexeme, false);
 }
 
