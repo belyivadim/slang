@@ -64,9 +64,22 @@ shared_ptr<stmt::Fn> Parser::function(const string& kind) {
   }
 
   consume(RIGHT_PAREN, "Expect ')' after parameters.");
-  consume(LEFT_BRACE, "Expect '{' before " + kind + "body.");
 
-  vector<shared_ptr<stmt::Stmt>> body = block();
+  vector<shared_ptr<stmt::Stmt>> body;
+
+  if (match({LEFT_BRACE})) {
+    body = block();
+  } else if (match({EQ_GREATER})) {
+    // arrow function
+    auto& keyword = previous();
+    auto value = expression();
+    auto stmt_ret = make_shared<stmt::Return>(stmt::Return(keyword, value));
+    body.push_back(stmt_ret);
+    consume(SEMICOLON, "Expect ';' after arrow " + kind + " body.");
+  } else {
+    consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+  }
+
   return make_shared<stmt::Fn>(stmt::Fn(name, params, body));
 }
 

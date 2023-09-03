@@ -81,7 +81,13 @@ void Scanner::scan_token() {
       add_token(match('=') ? BANG_EQ : BANG);
       break;
    case '=':
-      add_token(match('=') ? EQ_EQ : EQ);
+      if (match('=')) {
+        add_token(EQ_EQ);
+      } else if (match('>')) {
+        add_token(EQ_GREATER);
+      } else {
+        add_token(EQ);
+      }
       break;
     case '<':
       add_token(match('=') ? LESS_EQ : LESS);
