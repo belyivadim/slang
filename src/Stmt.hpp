@@ -12,6 +12,7 @@ namespace slang {
 namespace stmt {
 
 class Block;
+class Break;
 class Expression;
 class If;
 class Fn;
@@ -30,6 +31,7 @@ public:
   virtual ~IVisitor() = default;
 
   virtual void visitBlockStmt(Block& stmt) = 0;
+  virtual void visitBreakStmt(Break& stmt) = 0;
   virtual void visitExpressionStmt(Expression& stmt) = 0;
   virtual void visitIfStmt(If& stmt) = 0;
   virtual void visitFnStmt(Fn& stmt) = 0;
@@ -94,6 +96,27 @@ public:
   }
 
   std::vector<std::shared_ptr<Stmt>> m_statements;
+
+};
+
+class Break : public Stmt {
+public:
+  Break(const Token& keyword) :
+    Stmt(),
+    m_keyword(keyword)
+  {}
+
+  Break(const Break&) = default;
+  Break(Break&&) = default;
+  Break& operator=(const Break&) = default;
+  Break& operator=(Break&&) = default;
+  virtual ~Break() = default;
+
+  void accept(IVisitor& visitor) override {
+    visitor.visitBreakStmt(*this);
+  }
+
+  Token m_keyword;
 
 };
 

@@ -84,18 +84,24 @@ shared_ptr<stmt::Fn> Parser::function(const string& kind) {
 }
 
 shared_ptr<stmt::Stmt> Parser::statement() {
+  if (match({BREAK})) return break_statement();
   if (match({FOR})) return for_statement();
-  if (match({IF})) return if_statement();
   if (match({FN})) return function("function");
+  if (match({IF})) return if_statement();
+  if (match({LEFT_BRACE})) 
+    return make_shared<stmt::Block>(stmt::Block(block()));
   if (match({PRINT})) return print_statement();
   if (match({RETURN})) return return_statement();
   if (match({WHILE})) return while_statement();
-  if (match({LEFT_BRACE})) 
-    return make_shared<stmt::Block>(stmt::Block(block()));
 
   return expression_statement();
 }
 
+shared_ptr<stmt::Stmt> Parser::break_statement() {
+  auto& keyword = previous();
+  consume(SEMICOLON, "Expect ';' after break.");
+  return make_shared<stmt::Break>(stmt::Break(keyword));
+}
 
 shared_ptr<stmt::Stmt> Parser::return_statement() {
   auto& keyword = previous();

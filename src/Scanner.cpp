@@ -8,6 +8,7 @@ namespace slang {
 std::unordered_map<std::string, TokenType> Scanner::s_keywords{
   { "and",      AND },
   { "base",     BASE },
+  { "break",    BREAK },
   { "class",    CLASS },
   { "else",     ELSE },
   { "false",    FALSE },

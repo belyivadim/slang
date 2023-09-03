@@ -31,6 +31,7 @@ public:
   void visitPrintStmt(stmt::Print &stmt) override;
   void visitReturnStmt(stmt::Return &stmt) override;
   void visitWhileStmt(stmt::While &stmt) override;
+  void visitBreakStmt(stmt::Break &stmt) override;
 
   void visitVariableExpr(expr::Variable &expr) override;
   void visitAssignExpr(expr::Assign &expr) override;
@@ -53,6 +54,7 @@ private:
   vector<unordered_map<string, bool>> m_scopes;
   shared_ptr<ErrorReporter> m_reporter;
   FnType m_current_fn{FN_NONE};
+  bool m_is_break_allowed{false};
 
 
   void resolve(stmt::Stmt& stmt);

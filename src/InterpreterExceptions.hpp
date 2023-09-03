@@ -38,6 +38,18 @@ public:
   
 };
 
+class BreakExc : public std::runtime_error {
+public:
+  BreakExc() : std::runtime_error("") {}
+
+  BreakExc(BreakExc &&) = default;
+  BreakExc(const BreakExc &) = default;
+  BreakExc &operator=(BreakExc &&) = default;
+  BreakExc &operator=(const BreakExc &) = default;
+  ~BreakExc() = default;
+};
+
+
 } // namespace slang
 
 #endif // __SLANG_INTERPRETER_EXCEPTIONS_HPP__

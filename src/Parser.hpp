@@ -42,6 +42,7 @@ private:
   shared_ptr<stmt::Stmt> var_declaration();
   shared_ptr<stmt::Fn> function(const string& kind);
   shared_ptr<stmt::Stmt> statement();
+  shared_ptr<stmt::Stmt> break_statement();
   shared_ptr<stmt::Stmt> return_statement();
   shared_ptr<stmt::Stmt> if_statement();
   shared_ptr<stmt::Stmt> while_statement();

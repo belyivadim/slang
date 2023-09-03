@@ -40,6 +40,7 @@ public:
   void visitPrintStmt(stmt::Print &stmt) override;
   void visitVarStmt(stmt::Var &stmt) override;
   void visitBlockStmt(stmt::Block &stmt) override;
+  void visitBreakStmt(stmt::Break &stmt) override;
   void visitIfStmt(stmt::If &stmt) override;
   void visitWhileStmt(stmt::While &stmt) override;
   void visitFnStmt(stmt::Fn &stmt) override;

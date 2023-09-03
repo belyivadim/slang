@@ -167,6 +167,7 @@ def main() -> None:
         ["Token.hpp", "Expr.hpp"],
         [
         "Block      with std::vector<std::shared_ptr<Stmt>> statements",
+        "Break      with Token keyword",
         "Expression with std::shared_ptr<expr::Expr> expression",
         "If         with std::shared_ptr<expr::Expr> condition, " + 
                     "std::shared_ptr<Stmt> then_branch, " +

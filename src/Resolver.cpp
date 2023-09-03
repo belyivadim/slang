@@ -59,10 +59,17 @@ void Resolver::visitReturnStmt(stmt::Return &stmt) {
 
 void Resolver::visitWhileStmt(stmt::While &stmt) {
   resolve(*stmt.m_condition);
+  m_is_break_allowed = true;
   resolve(*stmt.m_then_branch);
+  m_is_break_allowed = false;
   if (stmt.m_else_branch != nullptr) resolve(*stmt.m_else_branch);
 }
 
+void Resolver::visitBreakStmt(stmt::Break &stmt) {
+  if (m_is_break_allowed == false) {
+    m_reporter->error(stmt.m_keyword, "break is not allowed here.");
+  }
+}
 
 void Resolver::visitVariableExpr(expr::Variable &expr) {
   if (!m_scopes.empty()) {

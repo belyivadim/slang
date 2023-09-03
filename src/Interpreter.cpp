@@ -235,7 +235,11 @@ void Interpreter::visitIfStmt(stmt::If &stmt) {
 void Interpreter::visitWhileStmt(stmt::While &stmt) {
   if (is_truthy(evaluate(*stmt.m_condition))) {
     do {
-      execute(*stmt.m_then_branch);
+      try {
+        execute(*stmt.m_then_branch);
+      } catch (const BreakExc&) {
+        break;
+      }
     } while (is_truthy(evaluate(*stmt.m_condition)));
   } else if (stmt.m_else_branch != nullptr) {
     execute(*stmt.m_else_branch);
@@ -257,6 +261,11 @@ void Interpreter::visitReturnStmt(stmt::Return &stmt) {
   }
 
   throw ReturnExc(ret);
+}
+
+
+void Interpreter::visitBreakStmt(stmt::Break &) {
+  throw BreakExc{};
 }
 
 // ------------------------ | PRIVATE |
