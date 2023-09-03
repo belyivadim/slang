@@ -49,7 +49,7 @@ public:
 
 private:
   enum FnType {
-    FN_NONE, FN_FUNCTION
+    FN_NONE, FN_FUNCTION, FN_METHOD
   };
 
 

@@ -74,6 +74,11 @@ void Resolver::visitBreakStmt(stmt::Break &stmt) {
 void Resolver::visitClassStmt(stmt::Class &stmt) {
   declare(stmt.m_name);
   define(stmt.m_name);
+
+  for (auto& method : stmt.m_methods) {
+    auto declaration = FN_METHOD;
+    resolve_function(*method, declaration);
+  }
 }
 
 void Resolver::visitVariableExpr(expr::Variable &expr) {

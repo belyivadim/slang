@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unordered_map>
 
 #include "ICallable.hpp"
 #include "SlangClass.hpp"
@@ -294,7 +295,15 @@ void Interpreter::visitBreakStmt(stmt::Break &) {
 
 void Interpreter::visitClassStmt(stmt::Class &stmt) {
   m_env->define(stmt.m_name.m_lexeme, nullptr);
-  auto cls = std::make_shared<SlangClass>(SlangClass(stmt.m_name.m_lexeme));
+
+  std::unordered_map<string, shared_ptr<SlangFn>> methods;
+  for (auto& method : stmt.m_methods) {
+    auto closure = std::make_unique<Environment>(Environment(*m_env));
+    auto fn = make_shared<SlangFn>(SlangFn(*method, std::move(closure)));
+    methods.insert({method->m_name.m_lexeme, fn});
+  }
+
+  auto cls = std::make_shared<SlangClass>(SlangClass(stmt.m_name.m_lexeme, methods));
   m_env->assign(stmt.m_name, cls);
 }
 

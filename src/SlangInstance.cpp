@@ -7,9 +7,15 @@ string SlangInstance::to_string() const {
 }
 
 Object SlangInstance::get_property(const Token& name) {
-  auto found = m_fields.find(name.m_lexeme); 
-  if (found != m_fields.end()) {
-    return found->second;
+  auto field = m_fields.find(name.m_lexeme); 
+  if (field != m_fields.end()) {
+    return field->second;
+  }
+
+  auto method = m_cls->find_method(name.m_lexeme);
+
+  if (method.has_value()) {
+    return method.value();
   }
 
   throw RuntimeError(name, "Undefined get_property '" + name.m_lexeme + "'.");
