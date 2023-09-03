@@ -13,3 +13,5 @@
 !makefile
 !*.sh
 !*.py
+
+build
